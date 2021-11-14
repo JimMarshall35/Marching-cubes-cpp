@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="shaders">
+      <UniqueIdentifier>{13018da7-3db4-4d96-84d6-7cbaa7e99ab7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\MarchingCubes">
+      <UniqueIdentifier>{f2ee5f1d-7c4b-4fc2-893e-04b3a4951094}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\MarchingCubes">
+      <UniqueIdentifier>{1864c5d6-b037-4d57-83b3-a5a6cee81b2f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\MetaBalls">
+      <UniqueIdentifier>{0418fa50-1bb7-47f4-b55c-5e95b3d4bbe2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\MetaBalls">
+      <UniqueIdentifier>{ee75fa6a-7140-4074-83a6-104cdd15c1be}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="typedefs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ErrorHandling.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="thread_pool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Marcher.h">
+      <Filter>Header Files\MarchingCubes</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenGLAdaptor.h">
+      <Filter>Header Files\MarchingCubes</Filter>
+    </ClInclude>
+    <ClInclude Include="MetaBalls.h">
+      <Filter>Header Files\MetaBalls</Filter>
+    </ClInclude>
+    <ClInclude Include="vectors.h">
+      <Filter>Header Files\MarchingCubes</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MarcherTables.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glad.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Marcher.cpp">
+      <Filter>Source Files\MarchingCubes</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenGLAdaptor.cpp">
+      <Filter>Source Files\MarchingCubes</Filter>
+    </ClCompile>
+    <ClCompile Include="MetaBalls.cpp">
+      <Filter>Source Files\MetaBalls</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="frag.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="vert.glsl">
+      <Filter>shaders</Filter>
+    </None>
+  </ItemGroup>
+</Project>
