@@ -70,6 +70,10 @@ void CubeMarcher::March(const SurfaceFunc3D& getValAtPoint)
 #endif // !THREAD_POOL
 
 
+
+
+
+
 #ifdef USE_THREAD_POOL
 void CubeMarcher::March(const SurfaceFunc3D& getValAtPoint)
 {
@@ -86,17 +90,22 @@ void CubeMarcher::March(const SurfaceFunc3D& getValAtPoint)
 	i32 zincr = _GridDims.d / threads_used;
 	std::vector<std::future<void>> futures;
 	futures.resize(threads_used);
+	std::vector<Array3D<ValueAtPoint>> value_arrays;
+	value_arrays.resize(threads_used);
 	for (u32 i = 0; i < threads_used; i++) {
 		u32 numcells = cells_per_thread;
 		if (i == threads_used - 1) {
 			numcells += remainder * _GridDims.w * _GridDims.h;
+			zincr += remainder;
 		}
-
-		futures[i] = _ThreadPool->enqueue([this, numcells, getValAtPoint, zval]() {
+		//auto value_arr = 
+		value_arrays[i] = Array3D<ValueAtPoint>(_GridDims.w + 1, _GridDims.h + 1, zincr + 2);
+		futures[i] = _ThreadPool->enqueue([this, numcells, getValAtPoint, zval, value_arrays, i]() {
 			SingleWorkerMarch(
 				ivec3(0, 0, zval),
-				numcells,
-				getValAtPoint
+				numcells + 0,
+				getValAtPoint,
+				value_arrays[i]
 			);
 		});
 		zval += zincr;
@@ -105,8 +114,14 @@ void CubeMarcher::March(const SurfaceFunc3D& getValAtPoint)
 	for (u32 i = 0; i < threads_used; i++) {
 		futures[i].wait();
 	}
+	for (auto& value : value_arrays) {
+		value.free();
+	}
 }
 #endif // THREADPOOL
+
+
+
 inline void CubeMarcher::ResizeVectors()
 {
 }
@@ -239,6 +254,125 @@ void CubeMarcher::SingleWorkerMarch(ivec3 cube_grid_coords, u32 numcells, const 
 		}
 	};
 }
+void CubeMarcher::SingleWorkerMarch(ivec3 cube_grid_coords, u32 numcells, const SurfaceFunc3D& getValAtPoint, Array3D<ValueAtPoint> arr)
+{
+	vec3 cursor_pos = _StartPoint + vec3(
+		cube_grid_coords.x * _CubeDims.w,
+		cube_grid_coords.y * _CubeDims.h,
+		cube_grid_coords.z * _CubeDims.d
+	);
+	auto h = arr.getH();
+	auto w = arr.getW();
+	auto d = arr.getD();
+
+	for (u32 i = 0; i < w; i++) {
+		for (u32 j = 0; j < h; j++) {
+			for (u32 k = 0; k < d; k++) {
+				vec3 pos = cursor_pos + vec3(i * _CubeDims.w, j * _CubeDims.h, k * _CubeDims.d);
+				arr.At(i,j,k).point = pos;
+				arr.At(i, j, k).value = getValAtPoint(pos);
+				
+			}
+		}
+	}
+	cube_grid_coords = ivec3(0);
+	Vertex vertList[MAX_VERTS_PER_CUBE];
+	for (u32 i = 0; i < numcells; i++) {
+		GridCell gridcell;
+
+		gridcell.positions[0] = arr.At(cube_grid_coords.x, cube_grid_coords.y, cube_grid_coords.z).point;
+		gridcell.values[0] = arr.At(cube_grid_coords.x, cube_grid_coords.y, cube_grid_coords.z).value;
+
+		gridcell.positions[1] = arr.At(cube_grid_coords.x + 1, cube_grid_coords.y, cube_grid_coords.z).point;
+		gridcell.values[1]    = arr.At(cube_grid_coords.x + 1, cube_grid_coords.y, cube_grid_coords.z).value;
+
+		gridcell.positions[2] = arr.At(cube_grid_coords.x + 1, cube_grid_coords.y + 1, cube_grid_coords.z).point;
+		gridcell.values[2]    = arr.At(cube_grid_coords.x + 1, cube_grid_coords.y + 1, cube_grid_coords.z).value;
+
+		gridcell.positions[3] = arr.At(cube_grid_coords.x, cube_grid_coords.y + 1, cube_grid_coords.z).point;
+		gridcell.values[3]    = arr.At(cube_grid_coords.x, cube_grid_coords.y + 1, cube_grid_coords.z).value;
+
+		gridcell.positions[4] = arr.At(cube_grid_coords.x, cube_grid_coords.y, cube_grid_coords.z + 1).point;
+		gridcell.values[4]    = arr.At(cube_grid_coords.x, cube_grid_coords.y, cube_grid_coords.z + 1).value;
+
+		gridcell.positions[5] = arr.At(cube_grid_coords.x + 1, cube_grid_coords.y, cube_grid_coords.z + 1).point;
+		gridcell.values[5]    = arr.At(cube_grid_coords.x + 1, cube_grid_coords.y, cube_grid_coords.z + 1).value;
+
+		gridcell.positions[6] = arr.At(cube_grid_coords.x + 1, cube_grid_coords.y + 1, cube_grid_coords.z + 1).point;
+		gridcell.values[6]    = arr.At(cube_grid_coords.x + 1, cube_grid_coords.y + 1, cube_grid_coords.z + 1).value; // exception
+
+		gridcell.positions[7] = arr.At(cube_grid_coords.x, cube_grid_coords.y + 1, cube_grid_coords.z + 1).point;
+		gridcell.values[7]    = arr.At(cube_grid_coords.x, cube_grid_coords.y + 1, cube_grid_coords.z + 1).value;
+
+		cube_grid_coords.x++;
+		if (cube_grid_coords.x >= _GridDims.w) {
+			cube_grid_coords.x = 0;
+			cube_grid_coords.y++;
+			if (cube_grid_coords.y >= _GridDims.h) {
+				cube_grid_coords.y = 0;
+				cube_grid_coords.z++;
+				if (cube_grid_coords.z >= _GridDims.d) {
+					cube_grid_coords.z = 0;
+				}
+			}
+		}
+		u8 cubeindex = 0;
+
+		if (gridcell.values[0] > _IsoLevel) cubeindex |= 1;
+		if (gridcell.values[1] > _IsoLevel) cubeindex |= 2;
+		if (gridcell.values[2] > _IsoLevel) cubeindex |= 4;
+		if (gridcell.values[3] > _IsoLevel) cubeindex |= 8;
+		if (gridcell.values[4] > _IsoLevel) cubeindex |= 16;
+		if (gridcell.values[5] > _IsoLevel) cubeindex |= 32;
+		if (gridcell.values[6] > _IsoLevel) cubeindex |= 64;
+		if (gridcell.values[7] > _IsoLevel) cubeindex |= 128;
+
+		if (Table::EDGES[cubeindex] == 0 || Table::EDGES[cubeindex] == 255) continue; // cell entirely within or outside of the isosurface
+
+		SetGridCellNormals(gridcell, getValAtPoint);
+
+
+		if (Table::EDGES[cubeindex] & 1)
+			vertList[0] = VertexInterpolation(gridcell, 0, 1);
+		if (Table::EDGES[cubeindex] & 2)
+			vertList[1] = VertexInterpolation(gridcell, 1, 2);
+		if (Table::EDGES[cubeindex] & 4)
+			vertList[2] = VertexInterpolation(gridcell, 2, 3);
+		if (Table::EDGES[cubeindex] & 8)
+			vertList[3] = VertexInterpolation(gridcell, 3, 0);
+		if (Table::EDGES[cubeindex] & 16)
+			vertList[4] = VertexInterpolation(gridcell, 4, 5);
+		if (Table::EDGES[cubeindex] & 32)
+			vertList[5] = VertexInterpolation(gridcell, 5, 6);
+		if (Table::EDGES[cubeindex] & 64)
+			vertList[6] = VertexInterpolation(gridcell, 6, 7);
+		if (Table::EDGES[cubeindex] & 128)
+			vertList[7] = VertexInterpolation(gridcell, 7, 4);
+		if (Table::EDGES[cubeindex] & 256)
+			vertList[8] = VertexInterpolation(gridcell, 0, 4);
+		if (Table::EDGES[cubeindex] & 512)
+			vertList[9] = VertexInterpolation(gridcell, 1, 5);
+		if (Table::EDGES[cubeindex] & 1024)
+			vertList[10] = VertexInterpolation(gridcell, 2, 6);
+		if (Table::EDGES[cubeindex] & 2048)
+			vertList[11] = VertexInterpolation(gridcell, 3, 7);
+
+		for (int j = 0; Table::TRIANGLES[cubeindex][j] != -1; j += 3) {
+			_VerticesMtx.lock();
+#ifdef PRE_ALLOCATE_VECTOR
+			Vertices[_NumVerts++] = vertList[Table::TRIANGLES[cubeindex][j + 2]];
+			Vertices[_NumVerts++] = vertList[Table::TRIANGLES[cubeindex][j + 1]];
+			Vertices[_NumVerts++] = vertList[Table::TRIANGLES[cubeindex][j]];
+#else
+			Vertices.emplace_back(vertList[Table::TRIANGLES[cubeindex][j + 2]]);
+			Vertices.emplace_back(vertList[Table::TRIANGLES[cubeindex][j + 1]]);
+			Vertices.emplace_back(vertList[Table::TRIANGLES[cubeindex][j]]);
+#endif
+			_VerticesMtx.unlock();
+	}
+};
+
+}
 void CubeMarcher::SetGridCellNormals(GridCell& cell, const SurfaceFunc3D& f)
 {
 	/**/
@@ -284,6 +418,9 @@ Vertex CubeMarcher::VertexInterpolation(const GridCell& cell, u32 index1, u32 in
 
 	vec3 p1 = cell.positions[index1];
 	vec3 p2 = cell.positions[index2];
+
+	//assert(p1.x < 12 && p1.x > -12);
+	//assert(p2.x < 12 && p2.x > -12);
 
 	vec3 n1 = cell.normals[index1];
 	vec3 n2 = cell.normals[index2];

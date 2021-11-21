@@ -57,6 +57,12 @@
     <ClInclude Include="vectors.h">
       <Filter>Header Files\MarchingCubes</Filter>
     </ClInclude>
+    <ClInclude Include="Array3D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CubeDrawer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -77,12 +83,21 @@
     <ClCompile Include="MetaBalls.cpp">
       <Filter>Source Files\MetaBalls</Filter>
     </ClCompile>
+    <ClCompile Include="CubeDrawer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="frag.glsl">
       <Filter>shaders</Filter>
     </None>
     <None Include="vert.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="wireframe_vert.glsl">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="wireframe_frag.glsl">
       <Filter>shaders</Filter>
     </None>
   </ItemGroup>

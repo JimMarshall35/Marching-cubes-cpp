@@ -43,6 +43,7 @@ static void cursor_position_callback(GLFWwindow* window, double xpos, double ypo
 		lasty = ypos;
 		if (glfwGetMouseButton(window, 0) == GLFW_PRESS) {
 			camera->ProcessMouseMovement(dx, dy);
+			std::cout << "pitch: " << camera->Pitch << " yaw: " << camera->Yaw << std::endl;
 		}
 
 		//std::cout << dx << " " << dy << std::endl;
@@ -58,16 +59,19 @@ static void processInput(GLFWwindow* window, float delta)
 			glfwSetWindowShouldClose(window, true);
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
 			camera->ProcessKeyboard(FORWARD, delta);
+			std::cout << "x: "<< camera->Position.x << ", y: " << camera->Position.y << " z: " << camera->Position.z << std::endl;
 		}
 		else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
 			camera->ProcessKeyboard(BACKWARD, delta);
-
+			std::cout << "x: " << camera->Position.x<<", y: "<<camera->Position.y << " z: "<<camera->Position.z <<std::endl;
 		}
 		else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
 			camera->ProcessKeyboard(LEFT, delta);
+			std::cout << "x: " << camera->Position.x << ", y: " << camera->Position.y << " z: " << camera->Position.z << std::endl;
 		}
 		else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
 			camera->ProcessKeyboard(RIGHT, delta);
+			std::cout << "x: " << camera->Position.x << ", y: " << camera->Position.y << " z: " << camera->Position.z << std::endl;
 		}
 		
 	}
@@ -91,10 +95,10 @@ static std::vector<MovingMetaball> movingMetaballs;
 static void SpawnRandomMovingMetaballs(u32 number_to_spawn) {
 	for (u32 i = 0; i < number_to_spawn; i++) {
 		MovingMetaball m;
-		f32 randx = -2 + ((f32)rand() / (f32)RAND_MAX) * 4.75;
-		f32 randy = -2 + ((f32)rand() / (f32)RAND_MAX) * 4.75;
-		f32 randz = -2 + ((f32)rand() / (f32)RAND_MAX) * 4.75;
-		f64 randradius = 0.1 +((f32)rand() / (f32)RAND_MAX) * 0.5f;
+		f32 randx = -2.75 + ((f32)rand() / (f32)RAND_MAX) * 11;
+		f32 randy = -2.75 + ((f32)rand() / (f32)RAND_MAX) * 11;
+		f32 randz = -2.75 + ((f32)rand() / (f32)RAND_MAX) * 11;
+		f64 randradius = 0.2 +((f32)rand() / (f32)RAND_MAX) * 0.5f;
 		PHASE phase = RandomBool() ? PHASE::POSITIVE : PHASE::NEGATIVE;
 		
 		m.id = MetaBalls::addMetaball(randradius, vec3(randx,randy,randz), PHASE::POSITIVE);
@@ -113,6 +117,7 @@ static void MoveMetaBalls(f32 delta) {
 		MetaBalls::getPointer(m.id)->position += m.direction * m.speed * delta;
 }
 #include <time.h>       /* time */
+#include "CubeDrawer.h"
 
 int main(int argc, char* argv[])
 {
@@ -123,7 +128,7 @@ int main(int argc, char* argv[])
 	f64 varing = 0.5;
 	m.SetIsoLevel(0.3f);
 	m.SetStartPoint(-2.75, -2.75, -2.75);
-
+	
 	//MetaBalls::addMetaball(1.0, vec3(0.0));
 	//MetaBalls::addMetaball(1.0, vec3(1.5,1.5,1.5));
 	SpawnRandomMovingMetaballs(10);
@@ -163,15 +168,20 @@ int main(int argc, char* argv[])
 
 	Shader shader("vert.glsl", "frag.glsl");
 	camera = new Camera();
-	camera->Position = glm::vec3(0.0,0.0,13.5);
+	camera->Position = glm::vec3(-6.47688, 11.3699, 23.4017);
+	camera->Yaw = -66.1;
+	camera->Pitch = -24.4;
+	camera->updateCameraVectors();
 	inputInit(window);
 	f64 last = glfwGetTime();
 	VAO_VBO_Pair p = loadVerticesInitial(m);
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(0,0,0,0);
 
+	WireFrameCubeGL wireframe;
+	wireframe.SetDimsInitial(55 * 0.2, 55 * 0.2, 55 * 0.2, vec3(-2.75, -2.75, -2.75));
 	while (!glfwWindowShouldClose(window))
 	{
 		f64 now = glfwGetTime();
@@ -193,6 +203,7 @@ int main(int argc, char* argv[])
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		render(shader,*camera,p.VAO);
+		wireframe.Render(*camera, width, height);
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
@@ -223,13 +234,13 @@ void render(const Shader& shader, const Camera& camera, const GLuint VAO) {
 	shader.setMat4("projection", glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f));
 
 	GLClearErrors();
-	shader.setVec3("lightPos", glm::vec3(0, 0, 0));
+	shader.setVec3("lightPos", glm::vec3(0, 7, 0));
 	GLPrintErrors("lightPos");
-	shader.setVec3("lightColor", glm::vec3(0.7,0.7,0.7));
+	shader.setVec3("lightColor", glm::vec3(1.0,0.7,0.7));
 	GLPrintErrors("lightColor");
 	shader.setVec3("objectColor", glm::vec3(0.0, 1.0, 1.0));
 	GLPrintErrors("objectColor");
 	glDrawArrays(GL_TRIANGLES, 0, num_vertices);
 	GLPrintErrors("141");
+	
 }
-

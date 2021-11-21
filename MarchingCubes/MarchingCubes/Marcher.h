@@ -13,10 +13,16 @@
 #define THREADS_TO_SKIP 3
 #define MAX_VERTS_PER_CUBE 12
 
+#include "Array3D.h"
 
 
 
 typedef std::function<f64(vec3)> SurfaceFunc3D;
+
+struct ValueAtPoint {
+	vec3 point;
+	f64 value;
+};
 
 struct GridCell {
 	vec3 positions[8];
@@ -69,6 +75,8 @@ private:
 
 	Vertex VertexInterpolation(const GridCell& cell, u32 index1, u32 index2) const;
 	void SingleWorkerMarch(ivec3 cube_grid_coords, u32 numcells, const SurfaceFunc3D& getValAtPoint);
+
+	void SingleWorkerMarch(ivec3 cube_grid_coords, u32 numcells, const SurfaceFunc3D& getValAtPoint, Array3D<ValueAtPoint> arr);
 
 	void SetGridCellNormals(GridCell& cell, const SurfaceFunc3D& f);
 };

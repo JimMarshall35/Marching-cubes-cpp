@@ -147,7 +147,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="CubeDrawer.h" />
     <ClInclude Include="ErrorHandling.h" />
+    <ClInclude Include="Array3D.h" />
     <ClInclude Include="MetaBalls.h" />
     <ClInclude Include="OpenGLAdaptor.h" />
     <ClInclude Include="Marcher.h" />
@@ -157,6 +159,7 @@
     <ClInclude Include="vectors.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CubeDrawer.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Marcher.cpp" />
@@ -167,6 +170,8 @@
   <ItemGroup>
     <None Include="frag.glsl" />
     <None Include="vert.glsl" />
+    <None Include="wireframe_frag.glsl" />
+    <None Include="wireframe_vert.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

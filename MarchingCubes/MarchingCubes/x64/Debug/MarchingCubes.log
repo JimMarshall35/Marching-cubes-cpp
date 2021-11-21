@@ -1,18 +1,35 @@
-﻿  main.cpp
-C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\Shader.h(56,40): warning C4101: 'e': unreferenced local variable
-C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\Marcher.h(80,2): warning C4091: 'static ': ignored on left of 'Table' when no variable is declared
+﻿  CubeDrawer.cpp
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\Shader.h(57,40): warning C4101: 'e': unreferenced local variable
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\CubeDrawer.cpp(58,19): warning C4244: 'argument': conversion from 'f64' to 'f32', possible loss of data
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\CubeDrawer.cpp(59,25): warning C4244: 'argument': conversion from 'f64' to 'f32', possible loss of data
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\CubeDrawer.cpp(60,27): warning C4244: 'argument': conversion from 'f64' to 'f32', possible loss of data
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\CubeDrawer.cpp(60,19): warning C4244: 'argument': conversion from 'f64' to 'f32', possible loss of data
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\CubeDrawer.cpp(62,22): warning C4244: 'argument': conversion from 'f64' to 'f32', possible loss of data
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\CubeDrawer.cpp(63,24): warning C4244: 'argument': conversion from 'f64' to 'f32', possible loss of data
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\CubeDrawer.cpp(63,19): warning C4244: 'argument': conversion from 'f64' to 'f32', possible loss of data
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\CubeDrawer.cpp(64,27): warning C4244: 'argument': conversion from 'f64' to 'f32', possible loss of data
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\CubeDrawer.cpp(64,22): warning C4244: 'argument': conversion from 'f64' to 'f32', possible loss of data
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\CubeDrawer.cpp(65,29): warning C4244: 'argument': conversion from 'f64' to 'f32', possible loss of data
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\CubeDrawer.cpp(65,24): warning C4244: 'argument': conversion from 'f64' to 'f32', possible loss of data
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\CubeDrawer.cpp(65,19): warning C4244: 'argument': conversion from 'f64' to 'f32', possible loss of data
+  main.cpp
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\Shader.h(57,40): warning C4101: 'e': unreferenced local variable
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\Marcher.h(88,2): warning C4091: 'static ': ignored on left of 'Table' when no variable is declared
 C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\shared\minwindef.h(130,1): warning C4005: 'APIENTRY': macro redefinition
 C:\Users\james.marshall\source\repos\MarchingCubes\glad\include\glad\glad.h(32): message : see previous definition of 'APIENTRY'
 C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\MetaBalls.h(26,2): warning C4091: 'static ': ignored on left of 'MetaBalls' when no variable is declared
 C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\main.cpp(45,37): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
 C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\main.cpp(45,33): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\main.cpp(94,13): warning C4244: 'initializing': conversion from 'double' to 'f32', possible loss of data
-C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\main.cpp(95,13): warning C4244: 'initializing': conversion from 'double' to 'f32', possible loss of data
-C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\main.cpp(96,13): warning C4244: 'initializing': conversion from 'double' to 'f32', possible loss of data
-C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\main.cpp(119,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\main.cpp(121,29): warning C4305: 'argument': truncation from 'double' to 'f32'
-C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\main.cpp(136,34): warning C4267: '=': conversion from 'size_t' to 'GLuint', possible loss of data
-C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\main.cpp(181,24): warning C4244: 'argument': conversion from 'f64' to 'float', possible loss of data
-C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\main.cpp(185,17): warning C4244: 'argument': conversion from 'f64' to 'f32', possible loss of data
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\main.cpp(98,13): warning C4244: 'initializing': conversion from 'double' to 'f32', possible loss of data
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\main.cpp(99,13): warning C4244: 'initializing': conversion from 'double' to 'f32', possible loss of data
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\main.cpp(100,13): warning C4244: 'initializing': conversion from 'double' to 'f32', possible loss of data
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\main.cpp(124,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\main.cpp(126,29): warning C4305: 'argument': truncation from 'double' to 'f32'
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\main.cpp(141,34): warning C4267: '=': conversion from 'size_t' to 'GLuint', possible loss of data
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\main.cpp(172,21): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\main.cpp(173,23): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\main.cpp(191,24): warning C4244: 'argument': conversion from 'f64' to 'float', possible loss of data
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\main.cpp(195,17): warning C4244: 'argument': conversion from 'f64' to 'f32', possible loss of data
+  Generating Code...
 LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
   MarchingCubes.vcxproj -> C:\Users\james.marshall\source\repos\MarchingCubes\x64\Debug\MarchingCubes.exe
