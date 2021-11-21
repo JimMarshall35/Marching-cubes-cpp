@@ -11,10 +11,10 @@ public:
 	Array3D(size_t w, size_t h, size_t d);
 	~Array3D();
 	T*** getPtr() { return _ptr; }
-	size_t getW() { return _w; }
-	size_t getH() { return _h; }
-	size_t getD() { return _d; }
-	T& At(size_t x, size_t y, size_t z);
+	size_t getW() const { return _w; }
+	size_t getH() const { return _h; }
+	size_t getD() const { return _d; }
+	T& At(size_t x, size_t y, size_t z) const;
 	void free();
 };
 
@@ -32,7 +32,7 @@ inline Array3D<T>::~Array3D()
 }
 
 template<typename T>
-inline T& Array3D<T>::At(size_t x, size_t y, size_t z)
+inline T& Array3D<T>::At(size_t x, size_t y, size_t z) const
 {
 	return _ptr[x * _h * _d + y * _d + z];
 }

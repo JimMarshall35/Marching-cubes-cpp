@@ -10,7 +10,7 @@
 #include "thread_pool.h"
 #define USE_THREAD_POOL
 #define PRE_ALLOCATE_VECTOR
-#define THREADS_TO_SKIP 3
+#define THREADS_TO_SKIP 1
 #define MAX_VERTS_PER_CUBE 12
 
 #include "Array3D.h"
@@ -28,6 +28,7 @@ struct GridCell {
 	vec3 positions[8];
 	f64 values[8];
 	vec3 normals[8];
+	ivec3 indices[8];
 };
 
 struct Vertex {

@@ -329,8 +329,13 @@ void CubeMarcher::SingleWorkerMarch(ivec3 cube_grid_coords, u32 numcells, const 
 
 		if (Table::EDGES[cubeindex] == 0 || Table::EDGES[cubeindex] == 255) continue; // cell entirely within or outside of the isosurface
 
+		//for (u32 i = 0; i < 8; i++) {
+			//gridcell.normals[i].x = getValAtPoint(gridcell.positions[i] + vec3(-_GridDims.w, 0, 0)) - getValAtPoint(gridcell.positions[i] + vec3(_GridDims.w, 0, 0));
+			//gridcell.normals[i].y = getValAtPoint(gridcell.positions[i] + vec3(0, -_GridDims.h, 0)) - getValAtPoint(gridcell.positions[i] + vec3(0, _GridDims.h, 0));
+			//gridcell.normals[i].z = getValAtPoint(gridcell.positions[i] + vec3(0, 0, -_GridDims.d)) - getValAtPoint(gridcell.positions[i] + vec3(0, 0, _GridDims.w));
+			//gridcell.normals[i] = gridcell.normals[i].normalize();
+		//}
 		SetGridCellNormals(gridcell, getValAtPoint);
-
 
 		if (Table::EDGES[cubeindex] & 1)
 			vertList[0] = VertexInterpolation(gridcell, 0, 1);
@@ -377,34 +382,11 @@ void CubeMarcher::SetGridCellNormals(GridCell& cell, const SurfaceFunc3D& f)
 {
 	/**/
 	for (u32 i = 0; i < 8; i++) {
-		cell.normals[i].x = f(cell.positions[i] + vec3(-_GridDims.w, 0, 0)) - f(cell.positions[i] + vec3(_GridDims.w, 0, 0));
-		cell.normals[i].y = f(cell.positions[i] + vec3(0, -_GridDims.h, 0)) - f(cell.positions[i] + vec3(0, _GridDims.h, 0));
-		cell.normals[i].z = f(cell.positions[i] + vec3(0, 0, -_GridDims.d)) - f(cell.positions[i] + vec3(0, 0, _GridDims.w));
+		cell.normals[i].x = (f(cell.positions[i] + vec3(-_CubeDims.w, 0, 0))) - (f(cell.positions[i] + vec3(_CubeDims.w, 0, 0)));
+		cell.normals[i].y = (f(cell.positions[i] + vec3(0, -_CubeDims.h, 0))) - (f(cell.positions[i] + vec3(0, _CubeDims.h, 0)));
+		cell.normals[i].z = (f(cell.positions[i] + vec3(0, 0, -_CubeDims.d))) - (f(cell.positions[i] + vec3(0, 0, _CubeDims.d)));
 		cell.normals[i] = cell.normals[i].normalize() ;
 	}
-	/*
-		Grid[cx,cy,cz].Normal.X := (Grid[cx-1, cy, cz].Value-Grid[cx+1, cy, cz].Value)
-		Grid[cx,cy,cz].Normal.Y := (Grid[cx, cy-1, cz].Value-Grid[cx, cy+1, cz].Value)
-		Grid[cx,cy,cz].Normal.Z := (Grid[cx, cy, cz-1].Value-Grid[cx, cy, cz+1].Value)
-
-	using namespace autodiff;
-
-	auto wrapper = [f](real x, real y, real z) {
-		real result = f(vec3((f32)x, (f32)y, (f32)z));
-		return result;
-	};
-	for (u32 i = 0; i < 8; i++) {
-		real x = cell.positions[i].x;
-		real y = cell.positions[i].y;
-		real z = cell.positions[i].z;
-
-		cell.normals[i].x = derivative(wrapper, wrt(x), at(x,y,z));   // wrt == "with respect to" 
-		cell.normals[i].y = derivative(wrapper, wrt(y), at(x, y, z));
-		cell.normals[i].z = derivative(wrapper, wrt(z), at(x, y, z));
-		cell.normals[i] = cell.normals[i].normalize();
-
-	}
-	*/
 }
 
 
@@ -419,9 +401,6 @@ Vertex CubeMarcher::VertexInterpolation(const GridCell& cell, u32 index1, u32 in
 	vec3 p1 = cell.positions[index1];
 	vec3 p2 = cell.positions[index2];
 
-	//assert(p1.x < 12 && p1.x > -12);
-	//assert(p2.x < 12 && p2.x > -12);
-
 	vec3 n1 = cell.normals[index1];
 	vec3 n2 = cell.normals[index2];
 
@@ -431,8 +410,8 @@ Vertex CubeMarcher::VertexInterpolation(const GridCell& cell, u32 index1, u32 in
 	p.z = p1.z + mu * (p2.z - p1.z);
 
 	n.x = n1.x + mu * (n2.x - n1.x);
-	n.y = n1.y + mu * (n2.y - n1.z);
-	n.z = n1.z + mu * (n2.y - n1.z);
+	n.y = n1.y + mu * (n2.y - n1.y);
+	n.z = n1.z + mu * (n2.z - n1.z);
 
 	return Vertex(p,n);
 

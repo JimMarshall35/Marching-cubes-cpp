@@ -234,11 +234,11 @@ void render(const Shader& shader, const Camera& camera, const GLuint VAO) {
 	shader.setMat4("projection", glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f));
 
 	GLClearErrors();
-	shader.setVec3("lightPos", glm::vec3(0, 7, 0));
+	shader.setVec3("lightPos", glm::vec3(-6.47688, 11.3699, 23.4017));
 	GLPrintErrors("lightPos");
-	shader.setVec3("lightColor", glm::vec3(1.0,0.7,0.7));
+	shader.setVec3("lightColor", glm::vec3(1.0, 1.0, 1.0));
 	GLPrintErrors("lightColor");
-	shader.setVec3("objectColor", glm::vec3(0.0, 1.0, 1.0));
+	shader.setVec3("objectColor", glm::vec3(0.0, 1.0, 0.2));
 	GLPrintErrors("objectColor");
 	glDrawArrays(GL_TRIANGLES, 0, num_vertices);
 	GLPrintErrors("141");
