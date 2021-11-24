@@ -8,7 +8,7 @@ enum class PHASE {
 	NEGATIVE = -1
 };
 struct MetaBall {
-	f64 radius;
+	f32 radius;
 	vec3 position;
 	GUID id;
 	PHASE phase;

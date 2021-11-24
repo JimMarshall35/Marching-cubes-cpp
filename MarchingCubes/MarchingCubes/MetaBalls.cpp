@@ -28,8 +28,8 @@ f64 MetaBalls::getValueAtPoint(vec3 point)
 	f64 sum = 0.0;
 	for (MetaBall m : _MetaBalls) {
 		f32 distance = vec3::distance(point, m.position);
-		if (distance > CUTOFF_DISTANCE) 
-			continue;
+		//if (distance > CUTOFF_DISTANCE) 
+			//continue;
 		f32 radius_squared = m.radius * m.radius;
 		f32 distance_squared = distance * distance;
 		sum += ((f32)m.phase)*radius_squared / distance_squared;

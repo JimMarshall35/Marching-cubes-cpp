@@ -32,7 +32,7 @@ struct vec3 {
 		return vec3(x + other.x, y + other.y, z + other.z);
 	}
 	vec3 operator-(const vec3& other) const {
-		return vec3(y - other.x, y - other.y, z - other.z);
+		return vec3(x - other.x, y - other.y, z - other.z);
 	}
 	void operator+=(const vec3& other) {
 		x += other.x;

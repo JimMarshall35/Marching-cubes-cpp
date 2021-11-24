@@ -3,7 +3,6 @@
 template<typename T>
 class Array3D {
 private:
-	//T*** _ptr;
 	T* _ptr;
 	size_t _w, _h, _d;
 public:
