@@ -6,10 +6,14 @@ bool MetaBallApplication::paused = false;
 i32 MetaBallApplication::number_to_spawn = 10;
 f32 MetaBallApplication::cubes_iso_level = 0.3f;
 bool MetaBallApplication::wireframe_mode = false;
+std::string MetaBallApplication::march_timer_text = "";
+Stopwatch MetaBallApplication::_stopwatch;
+std::map<std::string, double> MetaBallApplication::_timers_map;
 
 bool RandomBool() {
 	return rand() % 2 == 1;
 }
+
 void MetaBallApplication::SpawnRandomMovingMetaballs()
 {
 	ClearMetaBalls();
@@ -78,6 +82,57 @@ void MetaBallApplication::UpdateMarcherIso()
 MetaBall* MetaBallApplication::GetMetaBallPtr(GUID id)
 {
 	return MetaBalls::getPointer(id);
+}
+
+void MetaBallApplication::StartTimer(std::string name)
+{
+	_stopwatch.StartTimer(name);
+}
+
+void MetaBallApplication::StopTimer(std::string name)
+{	
+	_stopwatch.StopTimer(name);
+}
+
+void MetaBallApplication::SetThreads(u32 numthreads)
+{
+	_Marcher.ThreadsToUse = numthreads;
+}
+
+u32 MetaBallApplication::GetThreads()
+{
+	return _Marcher.ThreadsToUse;
+}
+
+u32 MetaBallApplication::GetHardWareThreads()
+{
+	return _Marcher.GetHardwareThreads();
+}
+
+void MetaBallApplication::RegisterTimer(std::string name, duration d)
+{
+	_stopwatch.RegisterTimer(StopWatchesUpdateCallBack, name, d);
+	_timers_map.emplace(std::pair<std::string, double>(name, 0.0));
+}
+
+void MetaBallApplication::RegisterTimer(std::string name, int d)
+{
+	_stopwatch.RegisterTimer(StopWatchesUpdateCallBack, name, d);
+	_timers_map.emplace(std::pair<std::string, double>(name, 0.0));
+}
+
+
+#include <iostream>   // std::cout
+#include <string>     // std::string, std::to_string
+
+
+void MetaBallApplication::StopWatchesUpdateCallBack(double result, std::string timer_name)
+{
+	_timers_map[timer_name] = result;
+	march_timer_text = "";
+	for (auto [key, value] : _timers_map) {
+		march_timer_text += key + std::to_string(value) + " ms\n";
+	}
 }
 
 void MetaBallApplication::ClearMetaBalls()

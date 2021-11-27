@@ -1,6 +1,9 @@
 #pragma once
 #include "MetaBalls.h"
 #include "OpenGLAdaptor.h"
+#include "Stopwatch.h"
+
+#define MARCH_TIMER_NAME = "March: "
 
 struct MovingMetaball {
 	GUID id;
@@ -28,6 +31,7 @@ public:
 	static f32 cubes_iso_level;
 	static std::vector<MovingMetaball> _MovingMetaballs;
 	static MOVEMENT_MODE movement_mode;
+	static std::string march_timer_text;
 public:
 	static void SpawnRandomMovingMetaballs();
 	static void MoveMetaBalls(f32 delta);
@@ -38,5 +42,18 @@ public:
 	static void UpdateVertices(GLuint vbo);
 	static void UpdateMarcherIso();
 	static MetaBall* GetMetaBallPtr(GUID id);
-};
+	static void StartTimer(std::string name);
+	static void StopTimer(std::string name);
+	static void SetThreads(u32 numthreads);
+	static u32 GetThreads();
+	static u32 GetHardWareThreads();
 
+	static void StopWatchesUpdateCallBack(double result, std::string timer_name);
+	static void RegisterTimer(std::string name, duration d);
+	static void RegisterTimer(std::string name, int d);
+private:
+	
+private:
+	static Stopwatch _stopwatch;
+	static std::map<std::string, double> _timers_map;
+};

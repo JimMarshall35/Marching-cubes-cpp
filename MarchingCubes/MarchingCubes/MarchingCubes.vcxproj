@@ -167,6 +167,7 @@
     <ClInclude Include="Marcher.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="Stopwatch.h" />
     <ClInclude Include="thread_pool.h" />
     <ClInclude Include="typedefs.h" />
     <ClInclude Include="vectors.h" />
@@ -189,6 +190,7 @@
     <ClCompile Include="MetaBalls.cpp" />
     <ClCompile Include="OpenGLAdaptor.cpp" />
     <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="Stopwatch.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="frag.glsl" />

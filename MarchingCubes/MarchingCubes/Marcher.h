@@ -49,7 +49,9 @@ public:
 	void March(const SurfaceFunc3D& getValAtPoint);
 	u32 GetNumVerts() const;
 	u32 GetGridSize() const { return _GridSize; }
+	u32 GetHardwareThreads() { return _HardwareThreads; }
 public:
+	u32 ThreadsToUse;
 	std::vector<Vertex> Vertices;
 private:
 	u32 _NumVerts;
@@ -79,7 +81,7 @@ private:
 
 	void SingleWorkerMarch(ivec3 cube_grid_coords, u32 numcells, const SurfaceFunc3D& getValAtPoint, Array3D<ValueAtPoint> arr);
 
-	void SetGridCellNormals(GridCell& cell, const SurfaceFunc3D& f);
+	void SetGridCellNormals(GridCell& cell, const SurfaceFunc3D& f, Array3D<ValueAtPoint> arr);
 };
 
 static class Table {

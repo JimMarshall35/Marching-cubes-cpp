@@ -1,36 +1,37 @@
 ﻿  MetaBallApplication.cpp
 C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\vectors.h(43,14): warning C4244: 'return': conversion from 'double' to 'f32', possible loss of data
 C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\MetaBalls.h(26,2): warning C4091: 'static ': ignored on left of 'MetaBalls' when no variable is declared
-C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\Marcher.h(89,2): warning C4091: 'static ': ignored on left of 'Table' when no variable is declared
-C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\MetaBallApplication.h(41,2): warning C4091: 'static ': ignored on left of 'MetaBallApplication' when no variable is declared
-C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\MetaBallApplication.cpp(16,20): warning C4018: '<': signed/unsigned mismatch
-C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\MetaBallApplication.cpp(18,13): warning C4244: 'initializing': conversion from 'double' to 'f32', possible loss of data
-C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\MetaBallApplication.cpp(19,13): warning C4244: 'initializing': conversion from 'double' to 'f32', possible loss of data
-C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\MetaBallApplication.cpp(20,13): warning C4244: 'initializing': conversion from 'double' to 'f32', possible loss of data
-C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\MetaBallApplication.cpp(46,36): warning C4305: 'argument': truncation from 'double' to 'f32'
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\Marcher.h(91,2): warning C4091: 'static ': ignored on left of 'Table' when no variable is declared
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\MetaBallApplication.h(59,2): warning C4091: 'static ': ignored on left of 'MetaBallApplication' when no variable is declared
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\MetaBallApplication.cpp(20,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\MetaBallApplication.cpp(22,13): warning C4244: 'initializing': conversion from 'double' to 'f32', possible loss of data
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\MetaBallApplication.cpp(23,13): warning C4244: 'initializing': conversion from 'double' to 'f32', possible loss of data
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\MetaBallApplication.cpp(24,13): warning C4244: 'initializing': conversion from 'double' to 'f32', possible loss of data
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\MetaBallApplication.cpp(50,36): warning C4305: 'argument': truncation from 'double' to 'f32'
   gui.cpp
 C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\Shader.h(57,40): warning C4101: 'e': unreferenced local variable
 C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\Renderer.h(26,2): warning C4091: 'static ': ignored on left of 'Renderer' when no variable is declared
 C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\shared\minwindef.h(130,1): warning C4005: 'APIENTRY': macro redefinition
 C:\Users\james.marshall\source\repos\MarchingCubes\glad\include\glad\glad.h(32): message : see previous definition of 'APIENTRY'
 C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\MetaBalls.h(26,2): warning C4091: 'static ': ignored on left of 'MetaBalls' when no variable is declared
-C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\Marcher.h(89,2): warning C4091: 'static ': ignored on left of 'Table' when no variable is declared
-C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\MetaBallApplication.h(41,2): warning C4091: 'static ': ignored on left of 'MetaBallApplication' when no variable is declared
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\Marcher.h(91,2): warning C4091: 'static ': ignored on left of 'Table' when no variable is declared
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\MetaBallApplication.h(59,2): warning C4091: 'static ': ignored on left of 'MetaBallApplication' when no variable is declared
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\gui.cpp(130,32): warning C4018: '<': signed/unsigned mismatch
   main.cpp
 C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\Shader.h(57,40): warning C4101: 'e': unreferenced local variable
 C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\Renderer.h(26,2): warning C4091: 'static ': ignored on left of 'Renderer' when no variable is declared
 C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\shared\minwindef.h(130,1): warning C4005: 'APIENTRY': macro redefinition
 C:\Users\james.marshall\source\repos\MarchingCubes\glad\include\glad\glad.h(32): message : see previous definition of 'APIENTRY'
 C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\MetaBalls.h(26,2): warning C4091: 'static ': ignored on left of 'MetaBalls' when no variable is declared
-C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\Marcher.h(89,2): warning C4091: 'static ': ignored on left of 'Table' when no variable is declared
-C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\MetaBallApplication.h(41,2): warning C4091: 'static ': ignored on left of 'MetaBallApplication' when no variable is declared
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\Marcher.h(91,2): warning C4091: 'static ': ignored on left of 'Table' when no variable is declared
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\MetaBallApplication.h(59,2): warning C4091: 'static ': ignored on left of 'MetaBallApplication' when no variable is declared
 C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\main.cpp(45,36): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
 C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\main.cpp(45,32): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\main.cpp(103,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\main.cpp(142,20): warning C4305: '=': truncation from 'double' to 'float'
-C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\main.cpp(143,22): warning C4305: '=': truncation from 'double' to 'float'
-C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\main.cpp(173,24): warning C4244: 'argument': conversion from 'f64' to 'float', possible loss of data
-C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\main.cpp(178,38): warning C4244: 'argument': conversion from 'f64' to 'f32', possible loss of data
-C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\main.cpp(190,70): warning C4244: 'argument': conversion from 'u64' to 'unsigned int', possible loss of data
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\main.cpp(106,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\main.cpp(146,20): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\main.cpp(147,22): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\main.cpp(177,24): warning C4244: 'argument': conversion from 'f64' to 'float', possible loss of data
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\main.cpp(182,38): warning C4244: 'argument': conversion from 'f64' to 'f32', possible loss of data
+C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\main.cpp(198,70): warning C4244: 'argument': conversion from 'u64' to 'unsigned int', possible loss of data
   Generating Code...
   MarchingCubes.vcxproj -> C:\Users\james.marshall\source\repos\MarchingCubes\x64\Debug\MarchingCubes.exe

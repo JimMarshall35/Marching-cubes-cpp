@@ -114,6 +114,7 @@ void doMetaBallsWindow(unsigned int vbo) {
 void doUI(unsigned int vbo)
 {
 	ImGui::Begin("Demo window");
+	ImGui::Text(MetaBallApplication::march_timer_text.c_str());
 	if(ImGui::BeginTabBar("tabs")){
 		if (ImGui::BeginTabItem("Main")) {
 			doMainTab(vbo);
@@ -121,6 +122,15 @@ void doUI(unsigned int vbo)
 		}
 		if (ImGui::BeginTabItem("Rendering")) {
 			doRenderingTab(vbo);
+			ImGui::EndTabItem();
+		}
+		if (ImGui::BeginTabItem("Marching cubes settings")) {
+			int threads = MetaBallApplication::GetThreads();
+			if (ImGui::InputInt("threads to use", &threads, 1)) {
+				if (threads > 0 && threads < MetaBallApplication::GetHardWareThreads()) {
+					MetaBallApplication::SetThreads(threads);
+				}
+			}
 			ImGui::EndTabItem();
 		}
 		ImGui::EndTabBar();

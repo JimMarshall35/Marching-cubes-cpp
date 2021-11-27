@@ -96,12 +96,16 @@ static void inputInit(GLFWwindow* window) {
 
 
 
-
+void initTimers() {
+	MetaBallApplication::RegisterTimer("march: ", duration(1000));
+	MetaBallApplication::RegisterTimer("update vertices: ", 50);
+}
 
 int main(int argc, char* argv[])
 {
 	srand(time(NULL));
-	
+	MetaBallApplication::paused = true;
+	initTimers();
 	MetaBallApplication::InitMarcher();
 	MetaBallApplication::SpawnRandomMovingMetaballs();
 	auto t1 = std::chrono::high_resolution_clock::now();
@@ -179,8 +183,12 @@ int main(int argc, char* argv[])
 
 		MetaBallApplication::UpdateMarcherIso();
 		if (!MetaBallApplication::paused) {
+			MetaBallApplication::StartTimer("march: ");
 			MetaBallApplication::March();
+			MetaBallApplication::StopTimer("march: ");
+			MetaBallApplication::StartTimer("update vertices: ");
 			MetaBallApplication::UpdateVertices(p.VBO);
+			MetaBallApplication::StopTimer("update vertices: ");
 		}
 		
 
