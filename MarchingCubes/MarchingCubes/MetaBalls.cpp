@@ -3,7 +3,7 @@
 #include "MetaBalls.h"
 
 std::vector<MetaBall> MetaBalls::_MetaBalls;
-GUID MetaBalls::addMetaball(f64 radius, vec3 pos, PHASE phase)
+GUID MetaBalls::addMetaball(f64 radius, glm::vec3 pos, PHASE phase)
 {
 	MetaBall m;
 	m.radius = radius;
@@ -23,11 +23,11 @@ void MetaBalls::removeMetaball(GUID id)
 	);
 }
 #define CUTOFF_DISTANCE 6
-f64 MetaBalls::getValueAtPoint(vec3 point)
+f64 MetaBalls::getValueAtPoint(glm::vec3 point)
 {
 	f64 sum = 0.0;
 	for (MetaBall m : _MetaBalls) {
-		f32 distance = vec3::distance(point, m.position);
+		f32 distance = glm::distance(point, m.position);
 		//if (distance > CUTOFF_DISTANCE) 
 			//continue;
 		f32 radius_squared = m.radius * m.radius;

@@ -17,7 +17,7 @@
 
 #include <time.h>       /* time */
 #include "CubeDrawer.h"
-
+#include "ComputeShaderMarcher.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void fps(f64 deltatime);
@@ -28,6 +28,7 @@ void imguiInit(GLFWwindow* window);
 static Camera camera;
 static bool wantMouseInput = false;
 static bool wantKeyboardInput = false;
+static void printGLSLExtensions();
 
 static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 {
@@ -66,6 +67,23 @@ void imguiInit(GLFWwindow* window)
 	ImGui_ImplOpenGL3_Init("#version 130");
 }
 
+static void printGLSLExtensions()
+{
+	GLint n = 0;
+	glGetIntegerv(GL_NUM_EXTENSIONS, &n);
+
+	PFNGLGETSTRINGIPROC glGetStringi = 0;
+	glGetStringi = (PFNGLGETSTRINGIPROC)wglGetProcAddress("glGetStringi");
+
+	for (GLint i = 0; i < n; i++)
+	{
+		const char* extension =
+			(const char*)glGetStringi(GL_EXTENSIONS, i);
+		printf("Ext %d: %s\n", i, extension);
+	}
+
+}
+
 
 static void processInput(GLFWwindow* window, float delta)
 {
@@ -101,8 +119,16 @@ void initTimers() {
 	MetaBallApplication::RegisterTimer("update vertices: ", 50);
 }
 
+
+
+
+
 int main(int argc, char* argv[])
 {
+	//printGLSLExtensions();
+	//printNumVertsTable();
+	//printFlatGLSLTrisTable();
+	std::cout << "max work group size: " << GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS << std::endl;
 	srand(time(NULL));
 	MetaBallApplication::paused = true;
 	initTimers();
@@ -115,8 +141,8 @@ int main(int argc, char* argv[])
 	std::cout << ms_double.count() << " ms" << std::endl;
 
 	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	Renderer::window_w = 800;
 	Renderer::window_h = 600;
@@ -142,6 +168,9 @@ int main(int argc, char* argv[])
 	glfwMaximizeWindow(window);
 
 	Renderer::InitShader("vert.glsl", "frag.glsl");
+	
+
+	
 	camera.Position = glm::vec3(-6.47688, 11.3699, 23.4017);
 	camera.Yaw = -66.1;
 	camera.Pitch = -24.4;
@@ -150,14 +179,24 @@ int main(int argc, char* argv[])
 	f64 last = glfwGetTime();
 	VAO_VBO_Pair p = MetaBallApplication::LoadVerticesIntial();
 
+	GLClearErrors();
 	glEnable(GL_DEPTH_TEST);
+	GLPrintErrors("glEnable GL_DEPTH_TEST");
+	glEnable(GL_TEXTURE_3D);
+	GLPrintErrors("glEnable GL_TEXTURE_3D");
+
 	glClearColor(0,0,0,0);
 
+	ComputeShaderMarcher m;
+	m.Evaluate(MetaBalls::_MetaBalls, glm::vec3(0), 0.4);
+
+
 	WireFrameCubeGL wireframe;
-	wireframe.SetDimsInitial(55 * 0.2, 55 * 0.2, 55 * 0.2, vec3(-2.75, -2.75, -2.75));
+	wireframe.SetDimsInitial(55 * 0.2, 55 * 0.2, 55 * 0.2, vec3(0,0,0));
 
 	imguiInit(window);
 	const ImGuiIO& io = ImGui::GetIO(); (void)io;
+	//printGLSLExtensions();
 	while (!glfwWindowShouldClose(window))
 	{
 		f64 now = glfwGetTime();
@@ -196,10 +235,13 @@ int main(int argc, char* argv[])
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		Renderer::render(camera, p.VAO, MetaBallApplication::GetNumVertices());
+
+		//Renderer::render(camera, m.GetVAO(), m.GetNumVertices());
 		wireframe.Render(camera, Renderer::window_w, Renderer::window_h);
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		glfwSwapBuffers(window);
+	
 		
 	}
 	ImGui_ImplOpenGL3_Shutdown();
@@ -224,4 +266,6 @@ void fps(f64 deltatime)
 	static double accumulated = 0.0;
 	static int times_called = 0;
 }
+
+
 

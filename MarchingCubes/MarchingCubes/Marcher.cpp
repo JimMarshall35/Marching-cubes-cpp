@@ -64,7 +64,7 @@ void CubeMarcher::March(const SurfaceFunc3D& getValAtPoint)
 #else
 	Vertices.clear();
 #endif
-	SingleWorkerMarch(ivec3(0, 0, 0), _GridSize, getValAtPoint);
+	SingleWorkerMarch(glm::ivec3(0, 0, 0), _GridSize, getValAtPoint);
 }
 
 
@@ -104,10 +104,10 @@ void CubeMarcher::March(const SurfaceFunc3D& getValAtPoint)
 		 + 1 because we need corners of a cube
 		 + 2 for a extra cube of padding on each dimension for calculating normals for vertices on the edge
 		*/
-		value_arrays[i] = Array3D<ValueAtPoint>(_GridDims.w + 3, _GridDims.h + 3, zincr + 3); 
+		value_arrays[i] = Array3D<ValueAtPoint>(_GridDims.w + 3, _GridDims.h + 3, zincr + 4); 
 		futures[i] = _ThreadPool->enqueue([this, numcells, getValAtPoint, zval, value_arrays, i]() {
 			SingleWorkerMarch(
-				ivec3(0, 0, zval),
+				glm::ivec3(0, 0, zval),
 				numcells + 0,
 				getValAtPoint,
 				value_arrays[i]
@@ -140,12 +140,12 @@ u32 CubeMarcher::GetNumVerts() const
 }
 
 
-void CubeMarcher::SingleWorkerMarch(ivec3 cube_grid_coords, u32 numcells, const SurfaceFunc3D& getValAtPoint) {
-	vec3 cursor_pos = _StartPoint;
+void CubeMarcher::SingleWorkerMarch(glm::ivec3 cube_grid_coords, u32 numcells, const SurfaceFunc3D& getValAtPoint) {
+	glm::vec3 cursor_pos = _StartPoint;
 	Vertex vertList[MAX_VERTS_PER_CUBE];
 	for (u32 i = 0; i < numcells; i++) {
 		GridCell gridcell;
-		cursor_pos = _StartPoint + vec3(
+		cursor_pos = _StartPoint + glm::vec3(
 			cube_grid_coords.x * _CubeDims.w,
 			cube_grid_coords.y * _CubeDims.h,
 			cube_grid_coords.z * _CubeDims.d
@@ -259,9 +259,9 @@ void CubeMarcher::SingleWorkerMarch(ivec3 cube_grid_coords, u32 numcells, const 
 		}
 	};
 }
-void CubeMarcher::SingleWorkerMarch(ivec3 cube_grid_coords, u32 numcells, const SurfaceFunc3D& getValAtPoint, Array3D<ValueAtPoint> arr)
+void CubeMarcher::SingleWorkerMarch(glm::ivec3 cube_grid_coords, u32 numcells, const SurfaceFunc3D& getValAtPoint, Array3D<ValueAtPoint> arr)
 {
-	vec3 cursor_pos = _StartPoint + vec3(
+	glm::vec3 cursor_pos = _StartPoint + glm::vec3(
 		cube_grid_coords.x * _CubeDims.w,
 		cube_grid_coords.y * _CubeDims.h,
 		cube_grid_coords.z * _CubeDims.d
@@ -273,14 +273,14 @@ void CubeMarcher::SingleWorkerMarch(ivec3 cube_grid_coords, u32 numcells, const 
 	for (u32 i = 0; i < w; i++) {
 		for (u32 j = 0; j < h; j++) {
 			for (u32 k = 0; k < d; k++) {
-				vec3 pos = cursor_pos + vec3(i * _CubeDims.w, j * _CubeDims.h, k * _CubeDims.d) + vec3(-_CubeDims.w, -_CubeDims.h, -_CubeDims.d);
+				glm::vec3 pos = cursor_pos + glm::vec3(i * _CubeDims.w, j * _CubeDims.h, k * _CubeDims.d) + glm::vec3(-_CubeDims.w, -_CubeDims.h, -_CubeDims.d);
 				arr.At(i,j,k).point = pos;
 				arr.At(i, j, k).value = getValAtPoint(pos);
 				
 			}
 		}
 	}
-	cube_grid_coords = ivec3(1,1,1);
+	cube_grid_coords = glm::ivec3(1,1,1);
 	Vertex vertList[MAX_VERTS_PER_CUBE];
 	for (u32 i = 0; i < numcells; i++) {
 		GridCell gridcell;
@@ -291,31 +291,31 @@ void CubeMarcher::SingleWorkerMarch(ivec3 cube_grid_coords, u32 numcells, const 
 
 		gridcell.positions[1] = arr.At(cube_grid_coords.x + 1, cube_grid_coords.y, cube_grid_coords.z).point;
 		gridcell.values[1]    = arr.At(cube_grid_coords.x + 1, cube_grid_coords.y, cube_grid_coords.z).value;
-		gridcell.indices[1] = cube_grid_coords + ivec3(1, 0, 0);
+		gridcell.indices[1] = cube_grid_coords + glm::ivec3(1, 0, 0);
 
 		gridcell.positions[2] = arr.At(cube_grid_coords.x + 1, cube_grid_coords.y + 1, cube_grid_coords.z).point;
 		gridcell.values[2]    = arr.At(cube_grid_coords.x + 1, cube_grid_coords.y + 1, cube_grid_coords.z).value;
-		gridcell.indices[2] = cube_grid_coords + ivec3(1,1,0);
+		gridcell.indices[2] = cube_grid_coords + glm::ivec3(1,1,0);
 
 		gridcell.positions[3] = arr.At(cube_grid_coords.x, cube_grid_coords.y + 1, cube_grid_coords.z).point;
 		gridcell.values[3]    = arr.At(cube_grid_coords.x, cube_grid_coords.y + 1, cube_grid_coords.z).value;
-		gridcell.indices[3] = cube_grid_coords + ivec3(0,1,0);
+		gridcell.indices[3] = cube_grid_coords + glm::ivec3(0,1,0);
 
 		gridcell.positions[4] = arr.At(cube_grid_coords.x, cube_grid_coords.y, cube_grid_coords.z + 1).point;
 		gridcell.values[4]    = arr.At(cube_grid_coords.x, cube_grid_coords.y, cube_grid_coords.z + 1).value;
-		gridcell.indices[4] = cube_grid_coords + ivec3(0,0,1);
+		gridcell.indices[4] = cube_grid_coords + glm::ivec3(0,0,1);
 
 		gridcell.positions[5] = arr.At(cube_grid_coords.x + 1, cube_grid_coords.y, cube_grid_coords.z + 1).point;
 		gridcell.values[5]    = arr.At(cube_grid_coords.x + 1, cube_grid_coords.y, cube_grid_coords.z + 1).value;
-		gridcell.indices[5] = cube_grid_coords + ivec3(1,0,1);
+		gridcell.indices[5] = cube_grid_coords + glm::ivec3(1,0,1);
 
 		gridcell.positions[6] = arr.At(cube_grid_coords.x + 1, cube_grid_coords.y + 1, cube_grid_coords.z + 1).point;
 		gridcell.values[6]    = arr.At(cube_grid_coords.x + 1, cube_grid_coords.y + 1, cube_grid_coords.z + 1).value; // exception
-		gridcell.indices[6] = cube_grid_coords + ivec3(1,1,1);
+		gridcell.indices[6] = cube_grid_coords + glm::ivec3(1,1,1);
 
 		gridcell.positions[7] = arr.At(cube_grid_coords.x, cube_grid_coords.y + 1, cube_grid_coords.z + 1).point;
 		gridcell.values[7]    = arr.At(cube_grid_coords.x, cube_grid_coords.y + 1, cube_grid_coords.z + 1).value;
-		gridcell.indices[7] = cube_grid_coords + ivec3(0,1,1);
+		gridcell.indices[7] = cube_grid_coords + glm::ivec3(0,1,1);
 
 		cube_grid_coords.x++;
 		if (cube_grid_coords.x >= _GridDims.w) {
@@ -406,30 +406,31 @@ void CubeMarcher::SetGridCellNormals(GridCell& cell, const SurfaceFunc3D& f, Arr
 		//cell.normals[i].x = (f(cell.positions[i] + vec3(-_CubeDims.w, 0, 0))) - (f(cell.positions[i] + vec3(_CubeDims.w, 0, 0)));
 		//cell.normals[i].y = (f(cell.positions[i] + vec3(0, -_CubeDims.h, 0))) - (f(cell.positions[i] + vec3(0, _CubeDims.h, 0)));
 		//cell.normals[i].z = (f(cell.positions[i] + vec3(0, 0, -_CubeDims.d))) - (f(cell.positions[i] + vec3(0, 0, _CubeDims.d)));
-		cell.normals[i] = cell.normals[i].normalize() ;
+		cell.normals[i] = glm::normalize(cell.normals[i]);
 	}
 }
 
 
 Vertex CubeMarcher::VertexInterpolation(const GridCell& cell, u32 index1, u32 index2) const
 {
-	vec3 n(0.0);
-	vec3 p(0.0);
+	glm::vec3 n(0.0);
+	glm::vec3 p(0.0);
 
 	f64 valp1 = cell.values[index1];
 	f64 valp2 = cell.values[index2];
 
-	vec3 p1 = cell.positions[index1];
-	vec3 p2 = cell.positions[index2];
+	glm::vec3 p1 = cell.positions[index1];
+	glm::vec3 p2 = cell.positions[index2];
 
-	vec3 n1 = cell.normals[index1];
-	vec3 n2 = cell.normals[index2];
+	glm::vec3 n1 = cell.normals[index1];
+	glm::vec3 n2 = cell.normals[index2];
 
 	f32 mu = (_IsoLevel - valp1) / (valp2 - valp1);
 	p.x = p1.x + mu * (p2.x - p1.x);
 	p.y = p1.y + mu * (p2.y - p1.y);
 	p.z = p1.z + mu * (p2.z - p1.z);
-
+	//p = glm::mix(p1, p2, mu);
+	//n = glm::mix(n1, n2, mu);
 	n.x = n1.x + mu * (n2.x - n1.x);
 	n.y = n1.y + mu * (n2.y - n1.y);
 	n.z = n1.z + mu * (n2.z - n1.z);

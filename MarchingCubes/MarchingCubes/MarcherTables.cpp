@@ -1,4 +1,5 @@
-#include "Marcher.h";
+#include "Marcher.h"
+#include <iostream>
 
 const int Table::EDGES[256] = {
 		0x0, 0x109, 0x203, 0x30a, 0x406, 0x50f, 0x605, 0x70c, 0x80c, 0x905, 0xa0f,
@@ -276,3 +277,48 @@ const int Table::TRIANGLES[256][16] = {
 			{ 0, 3, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
 			{ -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 }
 };
+void printNumVertsTable() {
+	// prints a table of the number of vertices by each marching cubes case so i can copy and paste it into source code ;)
+	int row_counter = 0;
+	std::cout << "const uint NUMVERTICES[256] = {" << std::endl << "\t";;
+	for (int i = 0; i < 256; i++) {
+
+		int vertex_count = 0;
+		for (int j = 0; j < 16; j++) {
+			if (Table::TRIANGLES[i][j] >= 0) {
+				vertex_count++;
+			}
+			else {
+				break;
+			}
+		}
+		std::cout << vertex_count;
+		if (vertex_count < 10) {
+			std::cout << " ";
+		}
+		if (i < 255)std::cout << ", ";
+		row_counter++;
+		if (row_counter == 16) {
+			row_counter = 0;
+			std::cout << std::endl;
+			if (i < 255) std::cout << "\t";
+		}
+
+	}
+	std::cout << "}" << std::endl << std::endl;
+}
+
+void printFlatGLSLTrisTable() {
+	std::cout << "const int TRIANGLES[4096] = {" << std::endl;
+	for (int i = 0; i < 256; i++) {
+		std::cout << "\t";
+		for (int j = 0; j < 16; j++) {
+			int value = Table::TRIANGLES[i][j];
+			std::cout << value;
+			if (value >= 0 && value < 10) std::cout << " ";
+			std::cout << ", ";
+		}
+		std::cout << std::endl;
+	}
+	std::cout << "}" << std::endl << std::endl;
+}

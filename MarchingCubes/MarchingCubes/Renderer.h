@@ -9,8 +9,9 @@
 static class Renderer
 {
 private:
-	static Shader _Shader;
+	
 public:
+	static Shader _Shader;
 	static void WireframeOn();
 	static void WireframeOff();
 	static void InitShader(const char* frag, const char* vert);

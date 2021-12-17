@@ -19,18 +19,18 @@ void MetaBallApplication::SpawnRandomMovingMetaballs()
 	ClearMetaBalls();
 	for (u32 i = 0; i < number_to_spawn; i++) {
 		MovingMetaball m;
-		f32 randx = -2.75 + ((f32)rand() / (f32)RAND_MAX) * 11;
-		f32 randy = -2.75 + ((f32)rand() / (f32)RAND_MAX) * 11;
-		f32 randz = -2.75 + ((f32)rand() / (f32)RAND_MAX) * 11;
+		f32 randx = ((f32)rand() / (f32)RAND_MAX) * 11;
+		f32 randy = ((f32)rand() / (f32)RAND_MAX) * 11;
+		f32 randz = ((f32)rand() / (f32)RAND_MAX) * 11;
 		f64 randradius = 0.2 + ((f32)rand() / (f32)RAND_MAX) * 0.5f;
 		PHASE phase = RandomBool() ? PHASE::POSITIVE : PHASE::NEGATIVE;
 
-		m.id = MetaBalls::addMetaball(randradius, vec3(randx, randy, randz), PHASE::POSITIVE);
-		m.direction = vec3(
+		m.id = MetaBalls::addMetaball(randradius, glm::vec3(5.5,5.5,5.5), PHASE::POSITIVE);
+		m.direction = glm::normalize(glm::vec3(
 			-1.0f + ((f32)rand() / (f32)RAND_MAX) * 2.0f,
 			-1.0f + ((f32)rand() / (f32)RAND_MAX) * 2.0f,
 			-1.0f + ((f32)rand() / (f32)RAND_MAX) * 2.0f
-		).normalize();
+		));
 
 		m.speed = ((f32)rand() / (f32)RAND_MAX) * 0.5f;
 		_MovingMetaballs.push_back(m);
@@ -51,7 +51,7 @@ void MetaBallApplication::InitMarcher()
 	_Marcher.SetGridDims(55, 55, 55);
 	f64 varing = 0.5;
 	_Marcher.SetIsoLevel(MetaBallApplication::cubes_iso_level);
-	_Marcher.SetStartPoint(-2.75, -2.75, -2.75);
+	_Marcher.SetStartPoint(0, 0, 0);
 }
 
 void MetaBallApplication::March()

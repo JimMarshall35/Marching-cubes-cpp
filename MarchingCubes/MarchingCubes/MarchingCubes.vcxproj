@@ -122,6 +122,8 @@
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <IntrinsicFunctions>true</IntrinsicFunctions>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -133,11 +135,13 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <WholeProgramOptimization>false</WholeProgramOptimization>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -148,6 +152,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="ComputeShader.h" />
+    <ClInclude Include="ComputeShaderMarcher.h" />
     <ClInclude Include="CubeDrawer.h" />
     <ClInclude Include="ErrorHandling.h" />
     <ClInclude Include="Array3D.h" />
@@ -173,6 +179,8 @@
     <ClInclude Include="vectors.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ComputeShader.cpp" />
+    <ClCompile Include="ComputeShaderMarcher.cpp" />
     <ClCompile Include="CubeDrawer.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="gui.cpp" />
@@ -193,7 +201,10 @@
     <ClCompile Include="Stopwatch.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="EvalGrid.glsl" />
     <None Include="frag.glsl" />
+    <None Include="generate_vertices.glsl" />
+    <None Include="list_nonempty_voxels.glsl" />
     <None Include="vert.glsl" />
     <None Include="wireframe_frag.glsl" />
     <None Include="wireframe_vert.glsl" />

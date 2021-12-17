@@ -3,11 +3,9 @@
 #include "OpenGLAdaptor.h"
 #include "Stopwatch.h"
 
-#define MARCH_TIMER_NAME = "March: "
-
 struct MovingMetaball {
 	GUID id;
-	vec3 direction;
+	glm::vec3 direction;
 	f32 speed;
 	std::string phase_string = "positive";
 };

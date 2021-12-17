@@ -5,8 +5,8 @@
 
 
 //#include "glm/glm.hpp"
+#include "typedefs.h"
 #include <functional>
-#include "vectors.h"
 #include "thread_pool.h"
 #define USE_THREAD_POOL
 #define PRE_ALLOCATE_VECTOR
@@ -14,28 +14,29 @@
 #define MAX_VERTS_PER_CUBE 12
 
 #include "Array3D.h"
+#include <glm/glm.hpp>
 
 
 
-typedef std::function<f64(vec3)> SurfaceFunc3D;
+typedef std::function<f64(glm::vec3)> SurfaceFunc3D;
 
 struct ValueAtPoint {
-	vec3 point;
+	glm::vec3 point;
 	f64 value;
 };
 
 struct GridCell {
-	vec3 positions[8];
+	glm::vec3 positions[8];
 	f64 values[8];
-	vec3 normals[8];
-	ivec3 indices[8];
+	glm::vec3 normals[8];
+	glm::ivec3 indices[8];
 };
 
 struct Vertex {
-	Vertex(): pos(vec3()), normal(vec3()){}
-	Vertex(vec3 pos, vec3 norm): pos(pos), normal(norm){}
-	vec3 pos;
-	vec3 normal;
+	Vertex(): pos(glm::vec3()), normal(glm::vec3()){}
+	Vertex(glm::vec3 pos, glm::vec3 norm): pos(pos), normal(norm){}
+	glm::vec3 pos;
+	glm::vec3 normal;
 };
 
 class CubeMarcher {
@@ -72,14 +73,14 @@ private:
 		f32 d;
 	} _CubeDims;
 
-	vec3 _StartPoint;
+	glm::vec3 _StartPoint;
 
 	f32 _IsoLevel;
 
 	Vertex VertexInterpolation(const GridCell& cell, u32 index1, u32 index2) const;
-	void SingleWorkerMarch(ivec3 cube_grid_coords, u32 numcells, const SurfaceFunc3D& getValAtPoint);
+	void SingleWorkerMarch(glm::ivec3 cube_grid_coords, u32 numcells, const SurfaceFunc3D& getValAtPoint);
 
-	void SingleWorkerMarch(ivec3 cube_grid_coords, u32 numcells, const SurfaceFunc3D& getValAtPoint, Array3D<ValueAtPoint> arr);
+	void SingleWorkerMarch(glm::ivec3 cube_grid_coords, u32 numcells, const SurfaceFunc3D& getValAtPoint, Array3D<ValueAtPoint> arr);
 
 	void SetGridCellNormals(GridCell& cell, const SurfaceFunc3D& f, Array3D<ValueAtPoint> arr);
 };
@@ -90,7 +91,8 @@ public:
 	static const int TRIANGLES[256][16];
 };
 
-
+void printNumVertsTable(void);
+void printFlatGLSLTrisTable(void);
 
 
 
