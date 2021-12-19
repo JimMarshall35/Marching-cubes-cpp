@@ -328,10 +328,10 @@ layout( packed, binding=2 ) buffer Vertices   // outputted values
 	Vertex verticesOutput[];
 };
 
-uniform float CellSize;
+uniform vec3 CellSize;
 uniform vec3 StartPos;
 uniform float IsoLevel;
-uniform int ChunkSize;
+uniform ivec3 ChunkSize;
 layout(r32f,binding = 2) readonly uniform image3D densityTexture;
 
 
@@ -352,14 +352,14 @@ vec3 GetNormal(in ivec3 global_index){
 		for the voxels on the outer edges of the cube this will have to be calculated afresh 
 	*/
 	float xMinus, xPlus, yMinus, yPlus, zMinus, zPlus;
-	xMinus = ((global_index.x - 1) >= 0)         ? imageLoad(densityTexture, global_index + ivec3(-1, 0, 0)).x : GetValueAtPoint(global_index + ivec3(-1, 0, 0));
-	xPlus =  ((global_index.x + 1) <  ChunkSize) ? imageLoad(densityTexture, global_index + ivec3( 1, 0, 0)).x : GetValueAtPoint(global_index + ivec3( 1, 0, 0));
+	xMinus = imageLoad(densityTexture, global_index + ivec3(-1, 0, 0)).x; //((global_index.x - 1) >= 0)         ? imageLoad(densityTexture, global_index + ivec3(-1, 0, 0)).x : GetValueAtPoint(global_index + ivec3(-1, 0, 0));
+	xPlus =  imageLoad(densityTexture, global_index + ivec3( 1, 0, 0)).x; //((global_index.x + 1) <  ChunkSize.x) ? imageLoad(densityTexture, global_index + ivec3( 1, 0, 0)).x : GetValueAtPoint(global_index + ivec3( 1, 0, 0));
 	
-	yMinus = ((global_index.y - 1) >= 0)         ? imageLoad(densityTexture, global_index + ivec3( 0,-1, 0)).x : GetValueAtPoint(global_index + ivec3( 0,-1, 0));
-	yPlus =  ((global_index.y + 1) <  ChunkSize) ? imageLoad(densityTexture, global_index + ivec3( 0, 1, 0)).x : GetValueAtPoint(global_index + ivec3( 0, 1, 0));
+	yMinus = imageLoad(densityTexture, global_index + ivec3( 0,-1, 0)).x; //((global_index.y - 1) >= 0)         ? imageLoad(densityTexture, global_index + ivec3( 0,-1, 0)).x : GetValueAtPoint(global_index + ivec3( 0,-1, 0));
+	yPlus =  imageLoad(densityTexture, global_index + ivec3( 0, 1, 0)).x; //((global_index.y + 1) <  ChunkSize.y) ? imageLoad(densityTexture, global_index + ivec3( 0, 1, 0)).x : GetValueAtPoint(global_index + ivec3( 0, 1, 0));
 	
-	zMinus = ((global_index.z - 1) >= 0)         ? imageLoad(densityTexture, global_index + ivec3( 0, 0,-1)).x : GetValueAtPoint(global_index + ivec3( 0, 0,-1));
-	zPlus =  ((global_index.z + 1) <  ChunkSize) ? imageLoad(densityTexture, global_index + ivec3( 0, 0, 1)).x : GetValueAtPoint(global_index + ivec3( 0, 0, 1));
+	zMinus = imageLoad(densityTexture, global_index + ivec3( 0, 0,-1)).x; //((global_index.z - 1) >= 0)         ? imageLoad(densityTexture, global_index + ivec3( 0, 0,-1)).x : GetValueAtPoint(global_index + ivec3( 0, 0,-1));
+	zPlus =  imageLoad(densityTexture, global_index + ivec3( 0, 0, 1)).x; //((global_index.z + 1) <  ChunkSize.z) ? imageLoad(densityTexture, global_index + ivec3( 0, 0, 1)).x : GetValueAtPoint(global_index + ivec3( 0, 0, 1));
 	
 	return vec3(
 		xMinus - xPlus,

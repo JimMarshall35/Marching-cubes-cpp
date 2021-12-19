@@ -2,32 +2,49 @@
 #include <string>
 #include <iostream>
 #include "ErrorHandling.h"
+#define HI 1.0f
+#define LO -1.0f
 
+GLuint Generate16by16by16RandomTexture() {
+	float* data = new float[16 * 16 * 16];
+	for (int i = 0; i < 16 * 16 * 16; i++) {
+		data[i] = LO + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (HI - LO)));
+	}
+	GLuint texture;
+	glGenTextures(1, &texture);
+	GLPrintErrors("glGenTextures");
+	glBindTexture(GL_TEXTURE_3D, texture);
+	GLPrintErrors("glBindTexture");
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT);
+
+	glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, 16, 16, 16, 0, GL_RED, GL_FLOAT, data);
+	glBindTexture(GL_TEXTURE_3D, 0);
+	return texture;
+}
 
 ComputeShaderMarcher::ComputeShaderMarcher()
 {
 	GLClearErrors();
-	_Values = new float[33 * 33 * 33];
 	_EvaluateVoxels.Load("EvalGrid.glsl");
 	_GetNonEmptyVoxels.Load("list_nonempty_voxels.glsl");
 	_GenerateVertices.Load("generate_vertices.glsl");
-	glGenTextures(1, &_Texture);
+	glGenTextures(1, &_VoxelValuesTexture);
 	GLPrintErrors("glGenTextures");
-	glBindTexture(GL_TEXTURE_3D, _Texture);
+	glBindTexture(GL_TEXTURE_3D, _VoxelValuesTexture);
 	GLPrintErrors("glBindTexture");
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
-	glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F,33, 33, 33,0, GL_RED, GL_FLOAT, _Values);
-	//glBindImageTexture(0, _Texture, 0, GL_TRUE, 0, GL_READ_WRITE, GL_R32F);
-
+	glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F,33, 33, 33,0, GL_RED, GL_FLOAT, NULL);
 	GLPrintErrors("glTexImage3D");
-
-
 	glBindTexture(GL_TEXTURE_3D, 0);
+	_RandomSeedTexture = Generate16by16by16RandomTexture();
 
 
 	// make intermediate ssbo
@@ -35,7 +52,10 @@ ComputeShaderMarcher::ComputeShaderMarcher()
 	GLPrintErrors("glGenBuffers");
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, _IntermediateDataSSBO);
 	GLPrintErrors("glBindBuffer");
-	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(unsigned int)* ((32 * 32 * 32 * 15) + 2), NULL, GL_DYNAMIC_DRAW); //sizeof(data) only works for statically sized C/C++ arrays.
+	glBufferStorage(GL_SHADER_STORAGE_BUFFER, sizeof(unsigned int) * ((32 * 32 * 32 * 15) + 2), NULL,
+		GL_MAP_READ_BIT);
+
+	//glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(unsigned int)* ((32 * 32 * 32 * 15) + 2), NULL, GL_DYNAMIC_DRAW); //sizeof(data) only works for statically sized C/C++ arrays.
 	GLPrintErrors("glBufferData");
 	
 
@@ -57,7 +77,8 @@ ComputeShaderMarcher::ComputeShaderMarcher()
 	GLPrintErrors("glGenBuffers");
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, _VertexSSBO);
 	GLPrintErrors("glBindBuffer");
-	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(unsigned int) * ((32 * 32 * 32 * 15) + 2), NULL, GL_DYNAMIC_DRAW); //sizeof(data) only works for statically sized C/C++ arrays.
+	//glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(unsigned int) * ((32 * 32 * 32 * 15) + 2), NULL, GL_DYNAMIC_DRAW); //sizeof(data) only works for statically sized C/C++ arrays.
+	
 	GLPrintErrors("glBufferData");
 
 
@@ -75,18 +96,37 @@ ComputeShaderMarcher::ComputeShaderMarcher()
 	GLPrintErrors("glBindBuffer");
 
 	// make vao
+	glGenVertexArrays(1, &_VAO);
 
-
-
+	glBindVertexArray(_VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, _VertexSSBO);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(4 * sizeof(float)));
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(8 * sizeof(float)));
+	glEnableVertexAttribArray(1);
 
 	_StopWatch.RegisterTimer([](double val, std::string name){
 		std::cout << "timer " << name << " : " << val << std::endl;
-		}, "Evaluate", 1);
+		}, "Evaluate", 100);
+	_StopWatch.RegisterTimer([](double val, std::string name) {
+		std::cout << "timer " << name << " : " << val << std::endl;
+		}, "stage1", 1);
+	_StopWatch.RegisterTimer([](double val, std::string name) {
+		std::cout << "timer " << name << " : " << val << std::endl;
+		}, "stage2", 1);
+	_StopWatch.RegisterTimer([](double val, std::string name) {
+		std::cout << "timer " << name << " : " << val << std::endl;
+		}, "stage3", 1);
+	_StopWatch.RegisterTimer([](double val, std::string name) {
+		std::cout << "timer " << name << " : " << val << std::endl;
+		}, "getvertexcounter", 1);
+	_StopWatch.RegisterTimer([](double val, std::string name) {
+		std::cout << "timer " << name << " : " << val << std::endl;
+		}, "allocatevertbuffer", 1);
 }
 
 ComputeShaderMarcher::~ComputeShaderMarcher()
 {
-	delete[] _Values;
 }
 
 void ComputeShaderMarcher::SetStartPos(const glm::vec3& start) const
@@ -104,6 +144,7 @@ void ComputeShaderMarcher::SetMetaBalls(const std::vector<MetaBall>& metaBalls)
 	_EvaluateVoxels.SetInt("NumMetaballs", metaBalls.size());
 	for (size_t i = 0; i < metaBalls.size(); i++) {
 		const MetaBall& m = metaBalls[i];
+		/**/
 		std::string position_name = "Metaballs[" + std::to_string(i) + "].position";
 		std::string radius_name = "Metaballs[" + std::to_string(i) + "].radius"; 
 		std::string phase_name = "Metaballs[" + std::to_string(i) + "].phase";
@@ -187,78 +228,109 @@ void printStage2(GLuint intermediateSSBO, bool drawslices = false) {
 	}
 	glUnmapNamedBuffer(intermediateSSBO);
 }
-void ComputeShaderMarcher::Evaluate(const std::vector<MetaBall>& metaballs, const glm::vec3& startpos, float cellsize)
-{
-	GLClearErrors(); 
-	_StopWatch.StartTimer("Evaluate");
 
-	/*
-	* Stage 1- Populate the 3d texture with voxel values
-	*/
-	_EvaluateVoxels.Use();
-	glBindImageTexture(2, _Texture, 0, GL_TRUE, NULL, GL_READ_WRITE, GL_R32F);
-	SetCellSize(cellsize);
-	SetMetaBalls(metaballs);
-	SetStartPos(startpos);
-	glDispatchCompute(33,33,33);
-	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-
-	/*
-	* Stage 2 - Calculate the marching cube's case for each cube of 8 voxels, 
-	* listing those that contain polygons and counting the no of vertices that will be produced
-	*/
-	_GetNonEmptyVoxels.Use();
-	_GetNonEmptyVoxels.SetFloat("IsoLevel", 0.5f);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, _IntermediateDataSSBO);
-	glDispatchCompute(32, 32, 32);
-	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-	//printStage2(_IntermediateDataSSBO, true);
-
-
-	// which method of getting vertex_counter from gpu memory is faster?
-	//unsigned int* vals = (unsigned int*)glMapNamedBuffer(_IntermediateDataSSBO, GL_READ_ONLY);
-	//unsigned int vertex_counter = vals[1];
-	//glUnmapNamedBuffer(_IntermediateDataSSBO);
-	unsigned int vertex_counter;
-	glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 4, 4, &vertex_counter);
-
-	/*
-	*  Stage 2.5 - allocate the buffer that vertices will go into
-	*/
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, _VertexSSBO);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(unsigned int) +(vertex_counter* 8 * sizeof(float)), NULL, GL_DYNAMIC_DRAW);
-
-	/*
-	*  Stage 3 - generate the vertices - setting _VAO so it can be used to render 
-	*/
-	_GenerateVertices.Use();
-	_GenerateVertices.SetInt("ChunkSize", 32);
-	_GenerateVertices.SetFloat("CellSize", cellsize);
-	_GenerateVertices.SetVec3("StartPos", startpos);
-	_GenerateVertices.SetFloat("IsoLevel", 0.5f);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, _VertexSSBO);
-	glDispatchCompute(vertex_counter,1,1);
-	glMemoryBarrier(GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT);
-
-	//printStage3(_VertexSSBO,vertex_counter);
-	
-	glGenVertexArrays(1, &_VAO);
-	
-	glBindVertexArray(_VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, _VertexSSBO);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(4 * sizeof(float)));
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(8 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-	
-	
-
-	glBindTexture(GL_TEXTURE_3D, 0);
-	_StopWatch.StopTimer("Evaluate");
-	
-}
 
 void ComputeShaderMarcher::StopwatchCallback(double value, std::string timerName)
 {
 	std::cout << "timer " << timerName << " : " << value << std::endl;
+}
+
+void ComputeShaderMarcher::GenerateMesh(const glm::vec3& chunkPosLL, const glm::vec3& chunkDim, const glm::ivec3& voxelDim)
+{
+}
+
+
+void ComputeShaderMarcher::GenerateMesh(const std::vector<MetaBall>& metaballs, const glm::vec3& chunkPosLL, const glm::vec3& chunkDim, const glm::ivec3& voxelDim, float isoValue)
+{
+	glm::vec3 voxelCubeDims = glm::vec3(
+		chunkDim.x / (float)voxelDim.x,
+		chunkDim.y / (float)voxelDim.y,
+		chunkDim.z / (float)voxelDim.z
+	);
+	GLClearErrors();
+	_StopWatch.StartTimer("Evaluate");
+#ifdef TIMER_MODE
+	_StopWatch.StartTimer("stage1");
+#endif
+	/*
+	* Stage 1- Populate the 3d texture with voxel values
+	*/
+	_EvaluateVoxels.Use();
+	glActiveTexture(GL_TEXTURE0);
+	GLPrintErrors("glActiveTexture(GL_TEXTURE0);");
+	glBindTexture(GL_TEXTURE_3D, _RandomSeedTexture);
+	glBindImageTexture(2, _VoxelValuesTexture, 0, GL_TRUE, NULL, GL_READ_WRITE, GL_R32F);
+	_EvaluateVoxels.SetVec3("CellSize", voxelCubeDims);
+	SetMetaBalls(metaballs);
+	_EvaluateVoxels.SetVec3("StartPos", chunkPosLL);
+	glDispatchCompute(voxelDim.x + 1, voxelDim.y + 1, voxelDim.z + 1);
+	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+#ifdef TIMER_MODE
+	_StopWatch.StopTimer("stage1");
+	_StopWatch.StartTimer("stage2");
+#endif
+	/*
+	* Stage 2 - Calculate the marching cube's case for each cube of 8 voxels,
+	* listing those that contain polygons and counting the no of vertices that will be produced
+	*/
+	_GetNonEmptyVoxels.Use();
+	_GetNonEmptyVoxels.SetFloat("IsoLevel", isoValue);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, _IntermediateDataSSBO);
+	glDispatchCompute(voxelDim.x, voxelDim.y, voxelDim.z);
+	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+	//printStage2(_IntermediateDataSSBO, true);
+#ifdef TIMER_MODE
+	_StopWatch.StopTimer("stage2");
+	_StopWatch.StartTimer("getvertexcounter");
+#endif
+	// which method of getting vertex_counter from gpu memory is faster?
+	
+	unsigned int* vals = (unsigned int*)glMapNamedBufferRange(_IntermediateDataSSBO,0,2*sizeof(unsigned int),GL_MAP_READ_BIT);
+	unsigned int vertex_counter = vals[1];
+	unsigned int index_counter = vals[0];
+	glUnmapNamedBuffer(_IntermediateDataSSBO);
+	
+	//unsigned int vertex_counter;
+	//glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 4, 4, &vertex_counter);
+#ifdef TIMER_MODE
+	_StopWatch.StopTimer("getvertexcounter");
+	_StopWatch.StartTimer("allocatevertbuffer");
+#endif
+	/*
+	*  Stage 2.5 - allocate the buffer that vertices will go into
+	*/
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, _VertexSSBO);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(unsigned int) + (vertex_counter * 8 * sizeof(float)), NULL, GL_DYNAMIC_DRAW);
+#ifdef TIMER_MODE
+	_StopWatch.StopTimer("allocatevertbuffer");
+	_StopWatch.StartTimer("stage3");
+#endif
+	/*
+	*  Stage 3 - generate the vertices - setting _VAO so it can be used to render
+	*/
+	_GenerateVertices.Use();
+	_GenerateVertices.SetIvec3("ChunkSize", voxelDim);
+	_GenerateVertices.SetVec3("CellSize", voxelCubeDims);
+	_GenerateVertices.SetVec3("StartPos", chunkPosLL);
+	_GenerateVertices.SetFloat("IsoLevel", isoValue);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, _VertexSSBO);
+	glDispatchCompute(index_counter, 1, 1);
+	glMemoryBarrier(GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT);
+
+	//printStage3(_VertexSSBO,vertex_counter);
+
+
+
+	glBindVertexArray(_VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, _VertexSSBO);
+	unsigned int pxl = 0;
+	glClearNamedBufferSubData(_IntermediateDataSSBO, GL_R32UI, 0, 2 * sizeof(unsigned int), GL_RED, GL_FLOAT, &pxl);
+#ifdef TIMER_MODE
+	_StopWatch.StopTimer("stage3");
+#endif
+
+	_NumVertices = vertex_counter;
+
+	glBindTexture(GL_TEXTURE_3D, 0);
+	_StopWatch.StopTimer("Evaluate");
 }

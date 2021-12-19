@@ -188,11 +188,11 @@ int main(int argc, char* argv[])
 	glClearColor(0,0,0,0);
 
 	ComputeShaderMarcher m;
-	m.Evaluate(MetaBalls::_MetaBalls, glm::vec3(0), 0.4);
-
+	//m.Evaluate(MetaBalls::_MetaBalls, glm::vec3(0), 0.4);
+	//m.GenerateMesh(MetaBalls::_MetaBalls, glm::vec3(0,-0.5f,0), glm::vec3(1.0,1.0,1.0), glm::ivec3(32, 32, 32), 0.0f);
 
 	WireFrameCubeGL wireframe;
-	wireframe.SetDimsInitial(55 * 0.2, 55 * 0.2, 55 * 0.2, vec3(0,0,0));
+	wireframe.SetDimsInitial(1.0,1.0,1.0, vec3(0, -0.5f, 0));
 
 	imguiInit(window);
 	const ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -217,7 +217,7 @@ int main(int argc, char* argv[])
 
 		//ImGui::ShowDemoWindow();
 		doUI(p.VBO);
-		
+		/*
 		MetaBallApplication::MoveMetaBalls(delta);
 
 		MetaBallApplication::UpdateMarcherIso();
@@ -229,14 +229,15 @@ int main(int argc, char* argv[])
 			MetaBallApplication::UpdateVertices(p.VBO);
 			MetaBallApplication::StopTimer("update vertices: ");
 		}
+		*/
 		
 
 		ImGui::Render();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
-		Renderer::render(camera, p.VAO, MetaBallApplication::GetNumVertices());
-
-		//Renderer::render(camera, m.GetVAO(), m.GetNumVertices());
+		m.GenerateMesh(MetaBalls::_MetaBalls, glm::vec3(0, -0.5f, 0), glm::vec3(1.0, 1.0, 1.0), glm::ivec3(32, 32, 32), 0.0f);
+		//Renderer::render(camera, p.VAO, MetaBallApplication::GetNumVertices());
+		GLuint num = m.GetNumVertices();
+		Renderer::render(camera, m.GetVAO(), num);
 		wireframe.Render(camera, Renderer::window_w, Renderer::window_h);
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
