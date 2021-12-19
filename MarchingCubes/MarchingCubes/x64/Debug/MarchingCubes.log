@@ -1,7 +1,0 @@
-﻿  ComputeShaderMarcher.cpp
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\shared\minwindef.h(130,1): warning C4005: 'APIENTRY': macro redefinition
-C:\Users\james.marshall\source\repos\MarchingCubes\glad\include\glad\glad.h(32): message : see previous definition of 'APIENTRY'
-C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\MetaBalls.h(27,2): warning C4091: 'static ': ignored on left of 'MetaBalls' when no variable is declared
-C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\ComputeShaderMarcher.cpp(144,57): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\james.marshall\source\repos\MarchingCubes\MarchingCubes\ComputeShaderMarcher.cpp(175,20): warning C4018: '<': signed/unsigned mismatch
-  MarchingCubes.vcxproj -> C:\Users\james.marshall\source\repos\MarchingCubes\x64\Debug\MarchingCubes.exe
