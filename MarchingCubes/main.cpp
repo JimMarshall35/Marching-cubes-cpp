@@ -17,7 +17,6 @@
 
 #include <time.h>       /* time */
 #include "Terrain.h"
-
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void fps(f64 deltatime);
 static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);

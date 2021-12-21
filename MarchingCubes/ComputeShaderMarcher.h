@@ -21,6 +21,7 @@ public:
 	/// <param name="voxelDim"></param>
 	void GenerateMesh(const std::vector<MetaBall>& metaballs, const glm::vec3& chunkPosLL, const glm::vec3& chunkDim, const glm::ivec3& voxelDim, float isoValue);
 	
+
 	void StopwatchCallback(double value, std::string timerName);
 	inline unsigned int GetNumVertices() { return _NumVertices; }
 	inline GLuint GetVAO() { return _VAO; }

@@ -4,7 +4,7 @@
 #include "ErrorHandling.h"
 #define HI 1.0f
 #define LO -1.0f
-#define TIMER_MODE
+//#define TIMER_MODE
 
 GLuint Generate16by16by16RandomTexture() {
 	float* data = new float[16 * 16 * 16];
@@ -31,8 +31,8 @@ ComputeShaderMarcher::ComputeShaderMarcher()
 {
 	GLClearErrors();
 	_EvaluateVoxels.Load("EvalGrid.glsl");
-	_GetNonEmptyVoxels.Load("list_nonempty_voxels.glsl");
-	_GenerateVertices.Load("generate_vertices.glsl");
+	_GetNonEmptyVoxels.Load("list_nonempty_voxels_v2.glsl");
+	_GenerateVertices.Load("generate_vertices_v2.glsl");
 	glGenTextures(1, &_VoxelValuesTexture);
 	GLPrintErrors("glGenTextures");
 	glBindTexture(GL_TEXTURE_3D, _VoxelValuesTexture);
@@ -117,7 +117,7 @@ ComputeShaderMarcher::ComputeShaderMarcher()
 
 	_StopWatch.RegisterTimer([](double val, std::string name){
 		std::cout << "timer " << name << " : " << val << std::endl;
-		}, "Evaluate", 1);
+		}, "Evaluate", 100);
 	_StopWatch.RegisterTimer([](double val, std::string name) {
 		std::cout << "timer " << name << " : " << val << std::endl;
 		}, "stage1", 1);
@@ -444,3 +444,4 @@ unsigned int ComputeShaderMarcher::GenerateMesh(
 	_StopWatch.StopTimer("Evaluate");
 	return vertex_counter;
 }
+
