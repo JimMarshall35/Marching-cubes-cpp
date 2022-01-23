@@ -1,2 +1,4 @@
 # Marching-cubes-cpp
-Multi-threaded implementation of the marching cubes algorithm in C++. Compute shader implementation of marching cubes, crude procedural terrain generation
+Compute shader implementation of marching cubes in openGL, crude procedural terrain generation.
+
+Also a thread pool based CPU implmentation
