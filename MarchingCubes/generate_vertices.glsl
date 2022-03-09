@@ -302,7 +302,7 @@ const uint EDGES[256] = {
 	0x406, 0x30a, 0x203, 0x109, 0x0
 };
 
-layout(local_size_x = 1,local_size_y = 1,local_size_z = 1)in;
+layout(local_size_x = 256,local_size_y = 1,local_size_z = 1)in;
 
 struct Vertex{
 	vec4 position;
@@ -330,6 +330,16 @@ uniform vec3 CellSize;
 uniform vec3 StartPos;
 uniform float IsoLevel;
 uniform ivec3 ChunkSize;
+uniform int IndexCount;
+layout(binding=0) uniform sampler3D SeedTexture0;
+layout(binding=1) uniform sampler3D SeedTexture1;
+layout(binding=2) uniform sampler3D SeedTexture2;
+layout(binding=3) uniform sampler3D SeedTexture3;
+layout(binding=4) uniform sampler3D SeedTexture4;
+layout(binding=5) uniform sampler3D SeedTexture5;
+layout(binding=6) uniform sampler3D SeedTexture6;
+layout(binding=7) uniform sampler3D SeedTexture7;
+layout(binding=8) uniform sampler3D SeedTexture8;
 layout(r32f,binding = 2) readonly uniform image3D densityTexture;
 
 
@@ -339,8 +349,21 @@ vec3 IndexToWorldPosition(in ivec3 index){
 }
 
 float GetValueAtPoint(in ivec3 index){
-	// not implemented
-	return 1.0f;
+	vec3 worldPos = IndexToWorldPosition(index);
+	float sum = -worldPos.y; 
+	float hard_floor_y = -1;
+	sum += clamp(((hard_floor_y - worldPos.y)*3),0.0,1.0)*40;
+	vec3 warp = texture(SeedTexture8,worldPos *0.004).rgb;
+	worldPos += warp*8;
+	sum += texture(SeedTexture7, worldPos*2.01).r * 0.0312;
+	sum += texture(SeedTexture6, worldPos*0.99).r * 0.0625;
+	sum += texture(SeedTexture5, worldPos*0.51).r * 0.125;
+	sum += texture(SeedTexture0, worldPos*0.25).r * 0.25;
+	sum += texture(SeedTexture1, worldPos*0.123).r * 0.5;
+	sum += texture(SeedTexture2, worldPos*0.063).r * 1.01;
+	sum += texture(SeedTexture3, worldPos*0.0325).r * 2;
+	sum += texture(SeedTexture4, worldPos*0.0165).r * 4;
+	return sum;
 }
 
 vec3 GetNormal(in ivec3 global_index){
@@ -352,14 +375,14 @@ vec3 GetNormal(in ivec3 global_index){
 		TODO: Implement this properly
 	*/
 	float xMinus, xPlus, yMinus, yPlus, zMinus, zPlus;
-	xMinus = imageLoad(densityTexture, global_index + ivec3(-1, 0, 0)).x; //((global_index.x - 1) >= 0)         ? imageLoad(densityTexture, global_index + ivec3(-1, 0, 0)).x : GetValueAtPoint(global_index + ivec3(-1, 0, 0));
-	xPlus =  imageLoad(densityTexture, global_index + ivec3( 1, 0, 0)).x; //((global_index.x + 1) <  ChunkSize.x) ? imageLoad(densityTexture, global_index + ivec3( 1, 0, 0)).x : GetValueAtPoint(global_index + ivec3( 1, 0, 0));
+	xMinus = ((global_index.x - 1) >= 0)         ? imageLoad(densityTexture, global_index + ivec3(-1, 0, 0)).x : GetValueAtPoint(global_index + ivec3(-1, 0, 0));
+	xPlus =  ((global_index.x + 1) <  ChunkSize.x) ? imageLoad(densityTexture, global_index + ivec3( 1, 0, 0)).x : GetValueAtPoint(global_index + ivec3( 1, 0, 0));
 	
-	yMinus = imageLoad(densityTexture, global_index + ivec3( 0,-1, 0)).x; //((global_index.y - 1) >= 0)         ? imageLoad(densityTexture, global_index + ivec3( 0,-1, 0)).x : GetValueAtPoint(global_index + ivec3( 0,-1, 0));
-	yPlus =  imageLoad(densityTexture, global_index + ivec3( 0, 1, 0)).x; //((global_index.y + 1) <  ChunkSize.y) ? imageLoad(densityTexture, global_index + ivec3( 0, 1, 0)).x : GetValueAtPoint(global_index + ivec3( 0, 1, 0));
+	yMinus = ((global_index.y - 1) >= 0)         ? imageLoad(densityTexture, global_index + ivec3( 0,-1, 0)).x : GetValueAtPoint(global_index + ivec3( 0,-1, 0));
+	yPlus =  ((global_index.y + 1) <  ChunkSize.y) ? imageLoad(densityTexture, global_index + ivec3( 0, 1, 0)).x : GetValueAtPoint(global_index + ivec3( 0, 1, 0));
 	
-	zMinus = imageLoad(densityTexture, global_index + ivec3( 0, 0,-1)).x; //((global_index.z - 1) >= 0)         ? imageLoad(densityTexture, global_index + ivec3( 0, 0,-1)).x : GetValueAtPoint(global_index + ivec3( 0, 0,-1));
-	zPlus =  imageLoad(densityTexture, global_index + ivec3( 0, 0, 1)).x; //((global_index.z + 1) <  ChunkSize.z) ? imageLoad(densityTexture, global_index + ivec3( 0, 0, 1)).x : GetValueAtPoint(global_index + ivec3( 0, 0, 1));
+	zMinus = ((global_index.z - 1) >= 0)         ? imageLoad(densityTexture, global_index + ivec3( 0, 0,-1)).x : GetValueAtPoint(global_index + ivec3( 0, 0,-1));
+	zPlus =  ((global_index.z + 1) <  ChunkSize.z) ? imageLoad(densityTexture, global_index + ivec3( 0, 0, 1)).x : GetValueAtPoint(global_index + ivec3( 0, 0, 1));
 	
 	return vec3(
 		xMinus - xPlus,
@@ -392,8 +415,12 @@ void main(){
 	/* 
 		 shader is dispatched 1 thread per non empty cube
 	*/
+	uint ind = gl_WorkGroupID.x * 256 + gl_LocalInvocationID.x;
+	if(ind >= IndexCount){
+		return;
+	}
 	// get a 32 bit value describing x y and z coordinates and marching cubes case of a non empty cube
-	uint myCaseAndIndex = nonemptyList[gl_WorkGroupID.x];
+	uint myCaseAndIndex = nonemptyList[ind];
 	// the marching cubes value describing which corners of the cube are in the field
 	uint myCase = myCaseAndIndex & 0x000000ff;
 	// number of vertices this cube will produce

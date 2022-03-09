@@ -9,7 +9,8 @@
 static class Renderer
 {
 private:
-	
+	static unsigned int _MossTexture;
+	static unsigned int _RockTexture;
 public:
 	static Shader _Shader;
 	static void WireframeOn();

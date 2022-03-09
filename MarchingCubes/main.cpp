@@ -16,7 +16,9 @@
 
 
 #include <time.h>       /* time */
-#include "Terrain.h"
+#include "CubeDrawer.h"
+
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void fps(f64 deltatime);
 static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
@@ -26,11 +28,10 @@ void imguiInit(GLFWwindow* window);
 static Camera camera;
 static bool wantMouseInput = false;
 static bool wantKeyboardInput = false;
-static void printGLSLExtensions();
 
 static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 {
-	
+
 	if (!wantMouseInput) {
 		static double lastx = 0;
 		static double lasty = 0;
@@ -52,7 +53,7 @@ void imguiInit(GLFWwindow* window)
 	// Setup Dear ImGui context
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
-	
+
 	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
@@ -63,23 +64,6 @@ void imguiInit(GLFWwindow* window)
 	// Setup Platform/Renderer backends
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 130");
-}
-
-static void printGLSLExtensions()
-{
-	GLint n = 0;
-	glGetIntegerv(GL_NUM_EXTENSIONS, &n);
-
-	PFNGLGETSTRINGIPROC glGetStringi = 0;
-	glGetStringi = (PFNGLGETSTRINGIPROC)wglGetProcAddress("glGetStringi");
-
-	for (GLint i = 0; i < n; i++)
-	{
-		const char* extension =
-			(const char*)glGetStringi(GL_EXTENSIONS, i);
-		printf("Ext %d: %s\n", i, extension);
-	}
-
 }
 
 
@@ -100,7 +84,7 @@ static void processInput(GLFWwindow* window, float delta)
 		else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
 			camera.ProcessKeyboard(RIGHT, delta);
 		}
-		
+
 	}
 
 
@@ -117,16 +101,8 @@ void initTimers() {
 	MetaBallApplication::RegisterTimer("update vertices: ", 50);
 }
 
-
-
-
-
 int main(int argc, char* argv[])
 {
-	//printGLSLExtensions();
-	//printNumVertsTable();
-	//printFlatGLSLTrisTable();
-	std::cout << "max work group size: " << GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS << std::endl;
 	srand(time(NULL));
 	MetaBallApplication::paused = true;
 	initTimers();
@@ -139,8 +115,8 @@ int main(int argc, char* argv[])
 	std::cout << ms_double.count() << " ms" << std::endl;
 
 	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	Renderer::window_w = 800;
 	Renderer::window_h = 600;
@@ -166,9 +142,6 @@ int main(int argc, char* argv[])
 	glfwMaximizeWindow(window);
 
 	Renderer::InitShader("vert.glsl", "frag.glsl");
-	
-
-	
 	camera.Position = glm::vec3(-6.47688, 11.3699, 23.4017);
 	camera.Yaw = -66.1;
 	camera.Pitch = -24.4;
@@ -177,33 +150,21 @@ int main(int argc, char* argv[])
 	f64 last = glfwGetTime();
 	VAO_VBO_Pair p = MetaBallApplication::LoadVerticesIntial();
 
-	GLClearErrors();
 	glEnable(GL_DEPTH_TEST);
-	GLPrintErrors("glEnable GL_DEPTH_TEST");
-	glEnable(GL_TEXTURE_3D);
-	GLPrintErrors("glEnable GL_TEXTURE_3D");
+	glClearColor(0, 0, 0, 0);
 
-	glClearColor(0,0,0,0);
-
-	//ComputeShaderMarcher m;
-	//m.Evaluate(MetaBalls::_MetaBalls, glm::vec3(0), 0.4);
-	//m.GenerateMesh(MetaBalls::_MetaBalls, glm::vec3(0,-0.5f,0), glm::vec3(1.0,1.0,1.0), glm::ivec3(32, 32, 32), 0.0f);
-
-	Terrain t;
-	t.Init();
-	//WireFrameCubeGL wireframe;
-	//wireframe.SetDimsInitial(1.0,1.0,1.0, vec3(0, -0.5f, 0));
+	WireFrameCubeGL wireframe;
+	wireframe.SetDimsInitial(55 * 0.2, 55 * 0.2, 55 * 0.2, vec3(0,0,0));
 
 	imguiInit(window);
 	const ImGuiIO& io = ImGui::GetIO(); (void)io;
-	//printGLSLExtensions();
 	while (!glfwWindowShouldClose(window))
 	{
 		f64 now = glfwGetTime();
 		f64 delta = now - last;
 		last = now;
 		wantMouseInput = io.WantCaptureMouse;
-        wantKeyboardInput = io.WantCaptureKeyboard;
+		wantKeyboardInput = io.WantCaptureKeyboard;
 
 		glfwPollEvents();
 
@@ -211,13 +172,13 @@ int main(int argc, char* argv[])
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		
+
 
 		processInput(window, delta);
 
 		//ImGui::ShowDemoWindow();
 		doUI(p.VBO);
-		/*
+
 		MetaBallApplication::MoveMetaBalls(delta);
 
 		MetaBallApplication::UpdateMarcherIso();
@@ -229,20 +190,17 @@ int main(int argc, char* argv[])
 			MetaBallApplication::UpdateVertices(p.VBO);
 			MetaBallApplication::StopTimer("update vertices: ");
 		}
-		*/
-		
+
 
 		ImGui::Render();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		//m.GenerateMesh(MetaBalls::_MetaBalls, glm::vec3(0, -0.5f, 0), glm::vec3(1,1,1), glm::ivec3(32,32,32), 0.0f);
-		//Renderer::render(camera, p.VAO, MetaBallApplication::GetNumVertices());
-		t.Render(camera, Renderer::window_w, Renderer::window_h);
-		//wireframe.Render(camera, Renderer::window_w, Renderer::window_h);
+
+		Renderer::render(camera, p.VAO, MetaBallApplication::GetNumVertices());
+		wireframe.Render(camera, Renderer::window_w, Renderer::window_h);
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		glfwSwapBuffers(window);
-	
-		
+
 	}
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
@@ -258,7 +216,7 @@ void framebuffer_size_callback(GLFWwindow* window, int newwidth, int newheight)
 	Renderer::window_w = newwidth;
 	Renderer::window_h = newheight;
 	glViewport(0, 0, newwidth, newheight);
-	
+
 }
 
 void fps(f64 deltatime)
@@ -266,6 +224,3 @@ void fps(f64 deltatime)
 	static double accumulated = 0.0;
 	static int times_called = 0;
 }
-
-
-

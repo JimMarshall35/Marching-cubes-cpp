@@ -15,6 +15,7 @@
 
 #include "Array3D.h"
 #include <glm/glm.hpp>
+#include <atomic>
 
 
 
@@ -55,7 +56,7 @@ public:
 	u32 ThreadsToUse;
 	std::vector<Vertex> Vertices;
 private:
-	u32 _NumVerts;
+	std::atomic<u32> _NumVerts;
 	std::mutex _VerticesMtx;
 	u32 _HardwareThreads;
 	ThreadPool* _ThreadPool;

@@ -55,14 +55,14 @@ void WireFrameCubeGL::getWireFrameCubeVAO(f64 w, f64 h, f64 d, vec3 startpos)
 	f32 z = startpos.z;
 
 	vec3 bbl = vec3(x, y, z);
-	vec3 bbr = vec3(x+w, y, z);
-	vec3 bfl = vec3(x, y, z+d);
-	vec3 bfr = vec3(x+w, y, z+d);
+	vec3 bbr = vec3(x + w, y, z);
+	vec3 bfl = vec3(x, y, z + d);
+	vec3 bfr = vec3(x + w, y, z + d);
 
-	vec3 tbl = vec3(x, y+h, z);
-	vec3 tbr = vec3(x+w, y+h, z);
-	vec3 tfl = vec3(x, y+h, z+d);
-	vec3 tfr = vec3(x+w, y+h, z+d);
+	vec3 tbl = vec3(x, y + h, z);
+	vec3 tbr = vec3(x + w, y + h, z);
+	vec3 tfl = vec3(x, y + h, z + d);
+	vec3 tfr = vec3(x + w, y + h, z + d);
 
 	vec3 vertices[] = {
 

@@ -158,6 +158,7 @@
     <ClInclude Include="ErrorHandling.h" />
     <ClInclude Include="Array3D.h" />
     <ClInclude Include="gui.h" />
+    <ClInclude Include="stb_image.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
     <ClInclude Include="imgui\imgui_impl_glfw.h" />
@@ -199,6 +200,7 @@
     <ClCompile Include="MetaBalls.cpp" />
     <ClCompile Include="OpenGLAdaptor.cpp" />
     <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="stbi_image.cpp" />
     <ClCompile Include="Stopwatch.cpp" />
     <ClCompile Include="Terrain.cpp" />
   </ItemGroup>

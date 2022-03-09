@@ -2,7 +2,24 @@
 #include "Marcher.h"
 #include <autodiff/forward/real.hpp>
 
-
+const u32 NUMVERTICES[256] = {
+		0 , 3 , 3 , 6 , 3 , 6 , 6 , 9 , 3 , 6 , 6 , 9 , 6 , 9 , 9 , 6 ,
+		3 , 6 , 6 , 9 , 6 , 9 , 9 , 12, 6 , 9 , 9 , 12, 9 , 12, 12, 9 ,
+		3 , 6 , 6 , 9 , 6 , 9 , 9 , 12, 6 , 9 , 9 , 12, 9 , 12, 12, 9 ,
+		6 , 9 , 9 , 6 , 9 , 12, 12, 9 , 9 , 12, 12, 9 , 12, 15, 15, 6 ,
+		3 , 6 , 6 , 9 , 6 , 9 , 9 , 12, 6 , 9 , 9 , 12, 9 , 12, 12, 9 ,
+		6 , 9 , 9 , 12, 9 , 12, 12, 15, 9 , 12, 12, 15, 12, 15, 15, 12,
+		6 , 9 , 9 , 12, 9 , 12, 6 , 9 , 9 , 12, 12, 15, 12, 15, 9 , 6 ,
+		9 , 12, 12, 9 , 12, 15, 9 , 6 , 12, 15, 15, 12, 15, 6 , 12, 3 ,
+		3 , 6 , 6 , 9 , 6 , 9 , 9 , 12, 6 , 9 , 9 , 12, 9 , 12, 12, 9 ,
+		6 , 9 , 9 , 12, 9 , 12, 12, 15, 9 , 6 , 12, 9 , 12, 9 , 15, 6 ,
+		6 , 9 , 9 , 12, 9 , 12, 12, 15, 9 , 12, 12, 15, 12, 15, 15, 12,
+		9 , 12, 12, 9 , 12, 15, 15, 12, 12, 9 , 15, 6 , 15, 12, 6 , 3 ,
+		6 , 9 , 9 , 12, 9 , 12, 12, 15, 9 , 12, 12, 15, 6 , 9 , 9 , 6 ,
+		9 , 12, 12, 15, 12, 15, 15, 6 , 12, 9 , 15, 12, 9 , 6 , 12, 3 ,
+		9 , 12, 12, 15, 12, 15, 9 , 12, 12, 15, 15, 6 , 9 , 12, 6 , 3 ,
+		6 , 9 , 9 , 6 , 9 , 12, 6 , 3 , 9 , 6 , 12, 3 , 6 , 3 , 3 , 0
+};
 void CubeMarcher::SetGridDims(u32 cubes_width, u32 cubes_height, u32 cubes_depth)
 {
 	_GridDims.w = cubes_width;
@@ -349,44 +366,58 @@ void CubeMarcher::SingleWorkerMarch(glm::ivec3 cube_grid_coords, u32 numcells, c
 			//gridcell.normals[i] = gridcell.normals[i].normalize();
 		//}
 		SetGridCellNormals(gridcell, getValAtPoint, arr);
-
-		if (Table::EDGES[cubeindex] & 1)
+		
+		if (Table::EDGES[cubeindex] & 1) {
 			vertList[0] = VertexInterpolation(gridcell, 0, 1);
-		if (Table::EDGES[cubeindex] & 2)
+		}
+		if (Table::EDGES[cubeindex] & 2) {
 			vertList[1] = VertexInterpolation(gridcell, 1, 2);
-		if (Table::EDGES[cubeindex] & 4)
+		}
+		if (Table::EDGES[cubeindex] & 4) {
 			vertList[2] = VertexInterpolation(gridcell, 2, 3);
-		if (Table::EDGES[cubeindex] & 8)
+		}
+		if (Table::EDGES[cubeindex] & 8) {
 			vertList[3] = VertexInterpolation(gridcell, 3, 0);
-		if (Table::EDGES[cubeindex] & 16)
+		}
+		if (Table::EDGES[cubeindex] & 16) {
 			vertList[4] = VertexInterpolation(gridcell, 4, 5);
-		if (Table::EDGES[cubeindex] & 32)
+		}
+		if (Table::EDGES[cubeindex] & 32) {
 			vertList[5] = VertexInterpolation(gridcell, 5, 6);
-		if (Table::EDGES[cubeindex] & 64)
+		}
+		if (Table::EDGES[cubeindex] & 64) {
 			vertList[6] = VertexInterpolation(gridcell, 6, 7);
-		if (Table::EDGES[cubeindex] & 128)
+		}
+		if (Table::EDGES[cubeindex] & 128) {
 			vertList[7] = VertexInterpolation(gridcell, 7, 4);
-		if (Table::EDGES[cubeindex] & 256)
+		}
+		if (Table::EDGES[cubeindex] & 256) {
 			vertList[8] = VertexInterpolation(gridcell, 0, 4);
-		if (Table::EDGES[cubeindex] & 512)
+		}
+		if (Table::EDGES[cubeindex] & 512) {
 			vertList[9] = VertexInterpolation(gridcell, 1, 5);
-		if (Table::EDGES[cubeindex] & 1024)
+		}
+		if (Table::EDGES[cubeindex] & 1024) {
 			vertList[10] = VertexInterpolation(gridcell, 2, 6);
-		if (Table::EDGES[cubeindex] & 2048)
+		}
+		if (Table::EDGES[cubeindex] & 2048) {
 			vertList[11] = VertexInterpolation(gridcell, 3, 7);
-
+		}
+		int numVertsAdded = 0;
+		
+		u32 start = _NumVerts.fetch_add(NUMVERTICES[cubeindex]);
 		for (int j = 0; Table::TRIANGLES[cubeindex][j] != -1; j += 3) {
-			_VerticesMtx.lock();
+			//_VerticesMtx.lock();
 #ifdef PRE_ALLOCATE_VECTOR
-			Vertices[_NumVerts++] = vertList[Table::TRIANGLES[cubeindex][j + 2]];
-			Vertices[_NumVerts++] = vertList[Table::TRIANGLES[cubeindex][j + 1]];
-			Vertices[_NumVerts++] = vertList[Table::TRIANGLES[cubeindex][j]];
+			Vertices[start++] = vertList[Table::TRIANGLES[cubeindex][j + 2]];
+			Vertices[start++] = vertList[Table::TRIANGLES[cubeindex][j + 1]];
+			Vertices[start++] = vertList[Table::TRIANGLES[cubeindex][j]];
 #else
 			Vertices.emplace_back(vertList[Table::TRIANGLES[cubeindex][j + 2]]);
 			Vertices.emplace_back(vertList[Table::TRIANGLES[cubeindex][j + 1]]);
 			Vertices.emplace_back(vertList[Table::TRIANGLES[cubeindex][j]]);
 #endif
-			_VerticesMtx.unlock();
+			//_VerticesMtx.unlock();
 	}
 };
 

@@ -4,7 +4,8 @@
 #extension GL_ARB_shader_storage_buffer_object:enable
 #extension GL_ARB_shader_atomic_counter_ops:enable
 #extension GL_ARB_shader_atomic_counters:enable
-layout(local_size_x = 1,local_size_y = 1,local_size_z = 1)in;
+#define LOCAL_THREADS_DIMS 4
+layout(local_size_x = LOCAL_THREADS_DIMS,local_size_y = LOCAL_THREADS_DIMS,local_size_z = LOCAL_THREADS_DIMS)in;
 
 layout( packed, binding=3 ) buffer Values   // outputted values 
 {
@@ -72,14 +73,15 @@ void main(){
 
 		
 	*/
-	float bottom_back_left   = imageLoad(densityTexture,ivec3(gl_WorkGroupID + uvec3(0,0,0))).x;
-	float bottom_front_left  = imageLoad(densityTexture,ivec3(gl_WorkGroupID + uvec3(0,0,1))).x;
-	float top_back_left      = imageLoad(densityTexture,ivec3(gl_WorkGroupID + uvec3(0,1,0))).x;
-	float top_front_left     = imageLoad(densityTexture,ivec3(gl_WorkGroupID + uvec3(0,1,1))).x;
-	float bottom_back_right  = imageLoad(densityTexture,ivec3(gl_WorkGroupID + uvec3(1,0,0))).x;
-	float bottom_front_right = imageLoad(densityTexture,ivec3(gl_WorkGroupID + uvec3(1,0,1))).x;
-	float top_back_right     = imageLoad(densityTexture,ivec3(gl_WorkGroupID + uvec3(1,1,0))).x;
-	float top_front_right    = imageLoad(densityTexture,ivec3(gl_WorkGroupID + uvec3(1,1,1))).x;
+	
+	float bottom_back_left   = imageLoad(densityTexture,ivec3(gl_WorkGroupID*LOCAL_THREADS_DIMS + gl_LocalInvocationID + uvec3(0,0,0))).x;
+	float bottom_front_left  = imageLoad(densityTexture,ivec3(gl_WorkGroupID*LOCAL_THREADS_DIMS + gl_LocalInvocationID + uvec3(0,0,1))).x;
+	float top_back_left      = imageLoad(densityTexture,ivec3(gl_WorkGroupID*LOCAL_THREADS_DIMS + gl_LocalInvocationID + uvec3(0,1,0))).x;
+	float top_front_left     = imageLoad(densityTexture,ivec3(gl_WorkGroupID*LOCAL_THREADS_DIMS + gl_LocalInvocationID + uvec3(0,1,1))).x;
+	float bottom_back_right  = imageLoad(densityTexture,ivec3(gl_WorkGroupID*LOCAL_THREADS_DIMS + gl_LocalInvocationID + uvec3(1,0,0))).x;
+	float bottom_front_right = imageLoad(densityTexture,ivec3(gl_WorkGroupID*LOCAL_THREADS_DIMS + gl_LocalInvocationID + uvec3(1,0,1))).x;
+	float top_back_right     = imageLoad(densityTexture,ivec3(gl_WorkGroupID*LOCAL_THREADS_DIMS + gl_LocalInvocationID + uvec3(1,1,0))).x;
+	float top_front_right    = imageLoad(densityTexture,ivec3(gl_WorkGroupID*LOCAL_THREADS_DIMS + gl_LocalInvocationID + uvec3(1,1,1))).x;
 	
 	uint cubecase;
 	if(bottom_back_left > IsoLevel)   cubecase |= 1;
@@ -95,7 +97,11 @@ void main(){
 		uint numverts = CalculateNumVerts(cubecase);
 		atomicCounterAdd(vertexCounter, numverts);
 		uint index = atomicCounterIncrement(indexCounter);
-		uint z8_y8_x8_case8 = (gl_WorkGroupID.z << 24) | (gl_WorkGroupID.y << 16) | (gl_WorkGroupID.x << 8) | cubecase;
+		uint z8_y8_x8_case8 = 
+		((gl_WorkGroupID.z*LOCAL_THREADS_DIMS + gl_LocalInvocationID.z) << 24) | 
+		((gl_WorkGroupID.y*LOCAL_THREADS_DIMS + gl_LocalInvocationID.y) << 16) | 
+		((gl_WorkGroupID.x*LOCAL_THREADS_DIMS + gl_LocalInvocationID.x) << 8) | 
+		cubecase;
 		nonemptyList[index] = z8_y8_x8_case8;
 		
 	}

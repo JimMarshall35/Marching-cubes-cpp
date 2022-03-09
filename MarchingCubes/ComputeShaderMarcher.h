@@ -31,7 +31,7 @@ private:
 	GLuint _VertexSSBO;
 	GLuint _VoxelValuesTexture;
 	GLuint _VoxelValuesDifferentialTexture; // not used
-	GLuint _RandomSeedTexture;
+	GLuint _RandomSeedTextures[9];
 	GLuint _AtomicCountersBuffer;
 	GLuint _IntermediateReadbackBuffer;
 

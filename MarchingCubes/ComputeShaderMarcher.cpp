@@ -7,6 +7,27 @@
 //#define TIMER_MODE
 
 GLuint Generate16by16by16RandomTexture() {
+	float* data = new float[16 * 16 * 16*3];
+	for (int i = 0; i < 16 * 16 * 16*3; i++) {
+		data[i] = LO + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (HI - LO)));
+	}
+	GLuint texture;
+	glGenTextures(1, &texture);
+	GLPrintErrors("glGenTextures");
+	glBindTexture(GL_TEXTURE_3D, texture);
+	GLPrintErrors("glBindTexture");
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_MIRRORED_REPEAT);
+
+	glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB32F, 16, 16, 16, 0, GL_RGB, GL_FLOAT, data);
+	glGenerateMipmap(GL_TEXTURE_3D);
+	glBindTexture(GL_TEXTURE_3D, 0);
+	return texture;
+}
+GLuint Generate16by16by16RandomWarpTexture() {
 	float* data = new float[16 * 16 * 16];
 	for (int i = 0; i < 16 * 16 * 16; i++) {
 		data[i] = LO + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (HI - LO)));
@@ -16,13 +37,14 @@ GLuint Generate16by16by16RandomTexture() {
 	GLPrintErrors("glGenTextures");
 	glBindTexture(GL_TEXTURE_3D, texture);
 	GLPrintErrors("glBindTexture");
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_MIRRORED_REPEAT);
 
-	glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, 16, 16, 16, 0, GL_RED, GL_FLOAT, data);
+	glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F, 16, 16, 16, 0, GL_RGB, GL_FLOAT, data);
+	glGenerateMipmap(GL_TEXTURE_3D);
 	glBindTexture(GL_TEXTURE_3D, 0);
 	return texture;
 }
@@ -31,26 +53,29 @@ ComputeShaderMarcher::ComputeShaderMarcher()
 {
 	GLClearErrors();
 	_EvaluateVoxels.Load("EvalGrid.glsl");
-	_GetNonEmptyVoxels.Load("list_nonempty_voxels_v2.glsl");
-	_GenerateVertices.Load("generate_vertices_v2.glsl");
+	_GetNonEmptyVoxels.Load("list_nonempty_voxels.glsl");
+	_GenerateVertices.Load("generate_vertices_v3.glsl");
 	glGenTextures(1, &_VoxelValuesTexture);
 	GLPrintErrors("glGenTextures");
 	glBindTexture(GL_TEXTURE_3D, _VoxelValuesTexture);
 	GLPrintErrors("glBindTexture");
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 	glTexImage3D(GL_TEXTURE_3D, 0, GL_R32F,33, 33, 33,0, GL_RED, GL_FLOAT, NULL);
 	GLPrintErrors("glTexImage3D");
 	glBindTexture(GL_TEXTURE_3D, 0);
-	_RandomSeedTexture = Generate16by16by16RandomTexture();
+	for (int i = 0; i < 9; i++) {
+		_RandomSeedTextures[i] = Generate16by16by16RandomTexture();
+	}
+	
 
 
 	// make intermediate ssbo
 	glGenBuffers(1, &_IntermediateDataSSBO);
-	GLPrintErrors("glGenBuffers");
+	GLPrintErrors("glGenBuffers _IntermediateDataSSBO");
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, _IntermediateDataSSBO);
 	GLPrintErrors("glBindBuffer");
 	glBufferStorage(GL_SHADER_STORAGE_BUFFER, sizeof(unsigned int) * ((32 * 32 * 32)), NULL,
@@ -58,6 +83,7 @@ ComputeShaderMarcher::ComputeShaderMarcher()
 
 	// make atomic counters buffer
 	glGenBuffers(1, &_AtomicCountersBuffer);
+	GLPrintErrors("glGenBuffers _AtomicCountersBuffer");
 	glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, _AtomicCountersBuffer);
 	glBufferStorage(GL_ATOMIC_COUNTER_BUFFER, 2 * sizeof(unsigned int), NULL, 
 		GL_MAP_READ_BIT | GL_MAP_WRITE_BIT);
@@ -81,7 +107,7 @@ ComputeShaderMarcher::ComputeShaderMarcher()
 
 	// make vertex ssbo
 	glGenBuffers(1, &_VertexSSBO);
-	GLPrintErrors("glGenBuffers");
+	GLPrintErrors("glGenBuffers _VertexSSBO");
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, _VertexSSBO);
 	GLPrintErrors("glBindBuffer");
 	//glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(unsigned int) * ((32 * 32 * 32 * 15) + 2), NULL, GL_DYNAMIC_DRAW); //sizeof(data) only works for statically sized C/C++ arrays.
@@ -262,9 +288,11 @@ void ComputeShaderMarcher::GenerateMesh(const std::vector<MetaBall>& metaballs, 
 	* Stage 1- Populate the 3d texture with voxel values
 	*/
 	_EvaluateVoxels.Use();
-	glActiveTexture(GL_TEXTURE0);
-	GLPrintErrors("glActiveTexture(GL_TEXTURE0);");
-	glBindTexture(GL_TEXTURE_3D, _RandomSeedTexture);
+	for (int i = 0; i < 9; i++) {
+		glActiveTexture(GL_TEXTURE0 + i);
+		glBindTexture(GL_TEXTURE_3D, _RandomSeedTextures[i]);
+	}
+	
 	glBindImageTexture(2, _VoxelValuesTexture, 0, GL_TRUE, NULL, GL_READ_WRITE, GL_R32F);
 	_EvaluateVoxels.SetVec3("CellSize", voxelCubeDims);
 	SetMetaBalls(metaballs);
@@ -354,17 +382,22 @@ unsigned int ComputeShaderMarcher::GenerateMesh(
 #ifdef TIMER_MODE
 	_StopWatch.StartTimer("stage1");
 #endif
+	unsigned int* vals = (unsigned int*)glMapNamedBufferRange(_AtomicCountersBuffer, 0, 2 * sizeof(unsigned int),  GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT);
+	vals[0] = 0;
+	vals[1] = 0;
+	glUnmapNamedBuffer(_AtomicCountersBuffer);
 	/*
 	* Stage 1- Populate the 3d texture with voxel values
 	*/
 	_EvaluateVoxels.Use();
-	glActiveTexture(GL_TEXTURE0);
-	GLPrintErrors("glActiveTexture(GL_TEXTURE0);");
-	glBindTexture(GL_TEXTURE_3D, _RandomSeedTexture);
+	for (int i = 0; i < 9; i++) {
+		glActiveTexture(GL_TEXTURE0 + i);
+		glBindTexture(GL_TEXTURE_3D, _RandomSeedTextures[i]);
+	}
 	glBindImageTexture(2, _VoxelValuesTexture, 0, GL_TRUE, NULL, GL_READ_WRITE, GL_R32F);
 	_EvaluateVoxels.SetVec3("CellSize", voxelCubeDims);
 	_EvaluateVoxels.SetVec3("StartPos", chunkPosLL);
-	glDispatchCompute(voxelDim.x + 1, voxelDim.y + 1, voxelDim.z + 1);
+	glDispatchCompute(1, 33,33);
 	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 #ifdef TIMER_MODE
 	_StopWatch.StopTimer("stage1");
@@ -376,9 +409,10 @@ unsigned int ComputeShaderMarcher::GenerateMesh(
 	*/
 	_GetNonEmptyVoxels.Use();
 	_GetNonEmptyVoxels.SetFloat("IsoLevel", isoValue);
+	const int LOCAL_THREADS_DIMS = 4;
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, _IntermediateDataSSBO);
 	glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, _AtomicCountersBuffer);
-	glDispatchCompute(voxelDim.x, voxelDim.y, voxelDim.z);
+	glDispatchCompute(voxelDim.x/ LOCAL_THREADS_DIMS, voxelDim.y/ LOCAL_THREADS_DIMS, voxelDim.z/ LOCAL_THREADS_DIMS);
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_ATOMIC_COUNTER_BARRIER_BIT);
 	//printStage2(_IntermediateDataSSBO, true);
 #ifdef TIMER_MODE
@@ -394,11 +428,9 @@ unsigned int ComputeShaderMarcher::GenerateMesh(
 	glUnmapNamedBuffer(_IntermediateDataSSBO);
 	*/
 	//GL_MAP_UNSYNCHRONIZED_BIT
-	unsigned int* vals = (unsigned int*)glMapNamedBufferRange(_AtomicCountersBuffer, 0, 2*sizeof(unsigned int),GL_MAP_READ_BIT | GL_MAP_WRITE_BIT);
+	vals = (unsigned int*)glMapNamedBufferRange(_AtomicCountersBuffer, 0, 2*sizeof(unsigned int),GL_MAP_READ_BIT );
 	unsigned int vertex_counter = vals[1];
 	unsigned int index_counter = vals[0];
-	vals[0] = 0;
-	vals[1] = 0;
 	glUnmapNamedBuffer(_AtomicCountersBuffer);
 
 	//unsigned int vertex_counter;
@@ -420,12 +452,21 @@ unsigned int ComputeShaderMarcher::GenerateMesh(
 	*  Stage 3 - generate the vertices - setting _VAO so it can be used to render
 	*/
 	_GenerateVertices.Use();
+	glActiveTexture(GL_TEXTURE0);
+	GLPrintErrors("glActiveTexture(GL_TEXTURE0);");
+
 	_GenerateVertices.SetIvec3("ChunkSize", voxelDim);
 	_GenerateVertices.SetVec3("CellSize", voxelCubeDims);
 	_GenerateVertices.SetVec3("StartPos", chunkPosLL);
 	_GenerateVertices.SetFloat("IsoLevel", isoValue);
+	_GenerateVertices.SetInt("IndexCount", index_counter);
+	static const int LOCAL_THREADS = 32;
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, VBO);
-	glDispatchCompute(index_counter, 1, 1);
+	GLuint num_to_dispatch = index_counter / LOCAL_THREADS;
+	if (index_counter % LOCAL_THREADS) {
+		num_to_dispatch += 1;
+	}
+	glDispatchCompute(num_to_dispatch, 1, 1);
 	glMemoryBarrier(GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT);
 
 	//printStage3(_VertexSSBO,vertex_counter);
